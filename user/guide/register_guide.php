@@ -1,8 +1,8 @@
 <?php
+require_once __DIR__ . '/../../database/db_connection.php';
+
 header('Access-Control-Allow-Origin: *');
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-
-include '../../database/db_connection.php';
 
 // Gelen verileri al
 $name = $_POST['name'];

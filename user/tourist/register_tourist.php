@@ -1,8 +1,8 @@
 <?php
+require_once __DIR__ . '/../../database/db_connection.php';
+
 header('Access-Control-Allow-Origin: *');
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-
-include '../../database/db_connection.php';
 
 // Gelen verileri al
 $name = $_POST['name'];
@@ -13,7 +13,7 @@ $password = $_POST['password'];
 $phoneNumber = $_POST['phoneNumber'];
 $dateOfBirth = $_POST['dateOfBirth'];
 $country = $_POST['country'];
-$role_id = 1; // Turist rol id'si varsayalım 1 olsun
+$role_id = 1;
 $is_deleted = 0;
 
 // Ülke ID'sini bul

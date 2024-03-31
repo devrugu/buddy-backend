@@ -1,5 +1,5 @@
 <?php
-require_once '../vendor/autoload.php';
+require '../vendor/autoload.php';
 
 $dotenv = Dotenv\Dotenv::createImmutable("../");
 $dotenv->load();
@@ -31,17 +31,17 @@ if ($result->num_rows == 0) {
     // Şifre doğruluğunu kontrol et
     if (password_verify($password, $user['password'])) {
         // Giriş başarılı, JWT oluştur
-        $key = $_ENV['JWT_SECRET_KEY']; // Güvenli bir şekilde saklanmalı
+        $key = $_ENV['JWT_SECRET_KEY'];
         $payload = [
             "iss" => "your_issuer",
             "aud" => "your_audience",
             "iat" => time(),
-            "exp" => time() + (90 * 24 * 60 * 60),  // 90 gün
+            "exp" => time() + $_ENV['JWT_EXPIRATION'],
             "data" => [
                 "user_id" => $user['user_id']
             ]
         ];
-        $jwt = JWT::encode($payload, $key, 'HS256');
+        $jwt = JWT::encode($payload, $key, $_ENV['JWT_ALGORITHM']);
 
         $user_id = $user['user_id'];
 
@@ -83,4 +83,3 @@ if ($result->num_rows == 0) {
 
 $stmt->close();
 $conn->close();
-?>
