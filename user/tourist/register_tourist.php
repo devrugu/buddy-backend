@@ -1,5 +1,10 @@
 <?php
-require_once __DIR__ . '/../../database/db_connection.php';
+require_once '../../vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '\\..\\..');
+$dotenv->load();
+
+include __DIR__ . '/../../database/db_connection.php';
 
 header('Access-Control-Allow-Origin: *');
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
