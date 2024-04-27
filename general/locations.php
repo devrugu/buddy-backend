@@ -1,10 +1,25 @@
 <?php
-require_once '../database/db_connection.php';
+require_once '../vendor/autoload.php';
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
-header('Content-Type: application/json');
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->load();
+
 header('Access-Control-Allow-Origin: *');
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+header("Content-Type: application/json");
 
-$query = "SELECT location_id, location_name FROM Locations ORDER BY location_name";
+include '../database/db_connection.php';
+
+$authHeader = getAuthorizationHeader();
+list($jwt) = sscanf($authHeader, 'Bearer %s');
+
+$key = $_ENV['JWT_SECRET_KEY'];
+$decoded = JWT::decode($jwt, new Key($key, 'HS256'));
+$country_id = $decoded->data->country_id;
+
+$query = "SELECT location_id, location_name FROM Locations WHERE country_id=$country_id ORDER BY location_name";
 $result = $conn->query($query);
 
 $locations = [];
@@ -15,5 +30,22 @@ if ($result->num_rows > 0) {
 }
 
 echo json_encode($locations);
+
+function getAuthorizationHeader() {
+    $headers = null;
+    if (isset($_SERVER['Authorization'])) {
+        $headers = trim($_SERVER["Authorization"]);
+    } else if (isset($_SERVER['HTTP_AUTHORIZATION'])) { //Nginx or fast CGI
+        $headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
+    } elseif (function_exists('apache_request_headers')) {
+        $requestHeaders = apache_request_headers();
+        // Server-side fix for bug in old Android versions (a nice side-effect of this fix means we don't care about capitalization for Authorization)
+        $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
+        if (isset($requestHeaders['Authorization'])) {
+            $headers = trim($requestHeaders['Authorization']);
+        }
+    }
+    return $headers;
+}
 
 $conn->close();

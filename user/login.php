@@ -32,6 +32,13 @@ if ($result->num_rows === 0) {
 } else {
     $user = $result->fetch_assoc();
     if (password_verify($password, $user['password'])) {
+        $query = "SELECT country_id FROM UserCountries WHERE user_id = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("i", $user['user_id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $country_id = $result->fetch_assoc()['country_id'];
+
         $key = $_ENV['JWT_SECRET_KEY'];
         $payload = [
             "iss" => "your_issuer",
@@ -39,7 +46,8 @@ if ($result->num_rows === 0) {
             "iat" => time(),
             "exp" => time() + (int)$_ENV['JWT_EXPIRATION'],
             "data" => [
-                "user_id" => $user['user_id']
+                "user_id" => $user['user_id'],
+                "country_id" => $country_id
             ]
         ];
         $jwt = JWT::encode($payload, $key, 'HS256');
@@ -85,4 +93,3 @@ function checkMissingProfileInfo($conn, $user_id) {
 
 $stmt->close();
 $conn->close();
-?>
