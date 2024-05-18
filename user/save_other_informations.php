@@ -1,14 +1,15 @@
 <?php
+header('Access-Control-Allow-Origin: *');
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+header("Content-Type: application/json");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
 require_once '../vendor/autoload.php';
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
 $dotenv->load();
-
-header('Access-Control-Allow-Origin: *');
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-header("Content-Type: application/json");
 
 include '../database/db_connection.php';
 
@@ -24,6 +25,7 @@ if ($jwt) {
         $user_id = $decoded->data->user_id;
 
         $data = json_decode(file_get_contents('php://input'), true);
+        error_log("Received data: " . print_r($data, true));
 
         // Eğitim seviyesi ekleme işlemi
         if (!empty($data['selectedEducationLevelId'])) {
@@ -31,10 +33,12 @@ if ($jwt) {
             $stmt = $conn->prepare($query);
             if (!$stmt) {
                 $response['errors'][] = "Prepare failed for education level insertion: " . $conn->error;
+                error_log("Prepare failed for education level insertion: " . $conn->error);
             } else {
                 $stmt->bind_param("ii", $user_id, $data['selectedEducationLevelId']);
                 if (!$stmt->execute()) {
                     $response['errors'][] = "Execution failed for education level: " . $stmt->error;
+                    error_log("Execution failed for education level: " . $stmt->error);
                 }
             }
         }
@@ -46,6 +50,7 @@ if ($jwt) {
                 $langStmt = $conn->prepare($langQuery);
                 if (!$langStmt) {
                     $response['errors'][] = "Prepare failed for language selection: " . $conn->error;
+                    error_log("Prepare failed for language selection: " . $conn->error);
                     continue;
                 }
                 $langStmt->bind_param("s", $languageName);
@@ -57,14 +62,17 @@ if ($jwt) {
                     $langInsStmt = $conn->prepare($langInsQuery);
                     if (!$langInsStmt) {
                         $response['errors'][] = "Prepare failed for language insertion: " . $conn->error;
+                        error_log("Prepare failed for language insertion: " . $conn->error);
                         continue;
                     }
                     $langInsStmt->bind_param("iis", $user_id, $languageId, $level);
                     if (!$langInsStmt->execute()) {
                         $response['errors'][] = "Execution failed for language: " . $langInsStmt->error;
+                        error_log("Execution failed for language: " . $langInsStmt->error);
                     }
                 } else {
                     $response['errors'][] = "Language not found: $languageName";
+                    error_log("Language not found: $languageName");
                 }
             }
         }
@@ -75,10 +83,12 @@ if ($jwt) {
             $locStmt = $conn->prepare($locQuery);
             if (!$locStmt) {
                 $response['errors'][] = "Prepare failed for location insertion: " . $conn->error;
+                error_log("Prepare failed for location insertion: " . $conn->error);
             } else {
                 $locStmt->bind_param("ii", $user_id, $data['selectedLocationId']);
                 if (!$locStmt->execute()) {
                     $response['errors'][] = "Execution failed for location: " . $locStmt->error;
+                    error_log("Execution failed for location: " . $locStmt->error);
                 }
             }
         }
@@ -90,6 +100,7 @@ if ($jwt) {
                 $profStmt = $conn->prepare($profQuery);
                 if (!$profStmt) {
                     $response['errors'][] = "Prepare failed for profession selection: " . $conn->error;
+                    error_log("Prepare failed for profession selection: " . $conn->error);
                     continue;
                 }
                 $profStmt->bind_param("s", $professionName);
@@ -101,14 +112,17 @@ if ($jwt) {
                     $profInsStmt = $conn->prepare($profInsQuery);
                     if (!$profInsStmt) {
                         $response['errors'][] = "Prepare failed for profession insertion: " . $conn->error;
+                        error_log("Prepare failed for profession insertion: " . $conn->error);
                         continue;
                     }
                     $profInsStmt->bind_param("iii", $user_id, $professionId, $years);
                     if (!$profInsStmt->execute()) {
                         $response['errors'][] = "Execution failed for profession: " . $profInsStmt->error;
+                        error_log("Execution failed for profession: " . $profInsStmt->error);
                     }
                 } else {
                     $response['errors'][] = "Profession not found: $professionName";
+                    error_log("Profession not found: $professionName");
                 }
             }
         }
@@ -116,10 +130,12 @@ if ($jwt) {
     } catch (Exception $e) {
         $response['status'] = "error";
         $response['message'] = 'JWT decoding error: ' . $e->getMessage();
+        error_log('JWT decoding error: ' . $e->getMessage());
     }
 } else {
     $response['status'] = "error";
     $response['message'] = 'Access denied. No JWT token provided.';
+    error_log('Access denied. No JWT token provided.');
 }
 
 echo json_encode($response);

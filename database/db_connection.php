@@ -4,17 +4,14 @@
 $dotenv = Dotenv\Dotenv::createImmutable("../");
 $dotenv->load(); */
 
-header('Access-Control-Allow-Origin: *');
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-
 /* $servername = $_ENV['SERVER_N'];
 $username = $_ENV['USER_NAME'];
 $password = $_ENV['PASSWORD'];
 $dbname = $_ENV['DATABASE_NAME']; */
 
-$servername = 'localhost';
+$servername = '34.32.35.30';
 $username = 'root';
-$password = '';
+$password = '159753';
 $dbname = 'buddy_database';
 
 // MySQL'e bağlan
