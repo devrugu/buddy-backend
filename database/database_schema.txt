@@ -133,6 +133,18 @@ algorithm_data_file_path (varchar(255)) (NULL)
 has_car (tinyint(1)) (NULL)
 has_house (tinyint(1)) (NULL)
 
+UserPictures
+picture_id (int) (PK) (AI)
+picture_path (varchar(255))
+is_profile_picture (tinyint(1))
+user_id (int) (NULL) (FK=>user_id-->Users::user_id)
+
+UserCurrentLocation
+current_location_id (int) (PK) (AI)
+user_id (int) (NULL) (FK=>user_id-->Users::user_id)
+latitude (DECIMAL(9, 6))
+longitude (DECIMAL(9, 6))
+
 UserRoles:
 role_id (int) (PK) (AI)
 role_name (varchar(255))
