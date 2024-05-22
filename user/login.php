@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 require '../vendor/autoload.php';
@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $query = "SELECT user_id, password FROM Users WHERE username = ? AND is_deleted = 0";
+    $query = "SELECT user_id, password, role_id FROM Users WHERE username = ? AND is_deleted = 0";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -48,21 +48,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 "exp" => time() + (int)$_ENV['JWT_EXPIRATION'],
                 "data" => [
                     "user_id" => $user['user_id'],
-                    "country_id" => $country_id
+                    "country_id" => $country_id,
+                    "role_id" => $user['role_id']
                 ]
             ];
             $jwt = JWT::encode($payload, $key, 'HS256');
 
             $user_id = $user['user_id'];
             $login_status = 1; // 1: successful, 0: failed
-            $query = 'INSERT INTO UserLoginRecords (user_id, login_status) VALUES (?, ?)';
+            $login_timestamp = date("Y-m-d H:i:s"); // Current timestamp for login
+            $query = 'INSERT INTO UserLoginRecords (user_id, login_timestamp, login_status) VALUES (?, ?, ?)';
             $stmt = $conn->prepare($query);
-            $stmt->bind_param('ii', $user_id, $login_status);
+            $stmt->bind_param('isi', $user_id, $login_timestamp, $login_status);
             $stmt->execute();
 
             $missing_info = checkMissingProfileInfo($conn, $user_id);
 
-            echo json_encode(['error' => false, 'message' => 'Login successful', 'token' => $jwt, 'profile_status' => empty($missing_info), 'missing_info' => $missing_info]);
+            echo json_encode([
+                'error' => false,
+                'message' => 'Login successful',
+                'token' => $jwt,
+                'role_id' => $user['role_id'],
+                'profile_status' => empty($missing_info),
+                'missing_info' => $missing_info
+            ]);
         } else {
             echo json_encode(['error' => true, 'message' => 'Password is incorrect.']);
         }
@@ -97,4 +106,3 @@ function checkMissingProfileInfo($conn, $user_id) {
     }
     return $missing_info;
 }
-?>

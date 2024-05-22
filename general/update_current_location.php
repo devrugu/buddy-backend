@@ -18,8 +18,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 
 include '../database/db_connection.php';
 
-$headers = apache_request_headers();
-$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : null;
+$authHeader = null;
+if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+    $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
+} elseif (function_exists('apache_request_headers')) {
+    $headers = apache_request_headers();
+    if (isset($headers['Authorization'])) {
+        $authHeader = $headers['Authorization'];
+    }
+}
+
+error_log('Authorization Header in update_current_location.php: ' . $authHeader); // Debugging
 
 if (!$authHeader) {
     echo json_encode(['error' => true, 'message' => 'Authorization header is missing']);
@@ -51,6 +60,7 @@ if (!$latitude || !$longitude) {
     exit;
 }
 
+// Use INSERT ... ON DUPLICATE KEY UPDATE
 $query = "INSERT INTO UserCurrentLocation (user_id, latitude, longitude) VALUES (?, ?, ?)
           ON DUPLICATE KEY UPDATE latitude = VALUES(latitude), longitude = VALUES(longitude)";
 $stmt = $conn->prepare($query);

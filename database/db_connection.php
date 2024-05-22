@@ -9,9 +9,9 @@ $username = $_ENV['USER_NAME'];
 $password = $_ENV['PASSWORD'];
 $dbname = $_ENV['DATABASE_NAME']; */
 
-$servername = '34.32.35.30';
+$servername = 'localhost';
 $username = 'root';
-$password = '159753';
+$password = '';
 $dbname = 'buddy_database';
 
 // MySQL'e bağlan
