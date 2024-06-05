@@ -1,126 +1,120 @@
-Activities:
-activity_id (int) (PK) (AI)
+activities
+activity_id (int(11)) (PK) (AI)
 activity_name (varchar(255))
-category_id (int) (NULL) (FK=>category_id-->ActivityCategories::category_id)
-
-ActivityCategories:
-category_id (int) (PK) (AI)
+category_id (int(11)) (NULL) (FK=>category_id-->activitycategories::category_id)
+activitycategories
+category_id (int(11)) (PK) (AI)
 category_name (varchar(255)) (NULL)
-
-Countries:
-country_id (int) (PK) (AI)
+countries
+country_id (int(11)) (PK) (AI)
 country_name (varchar(255))
-
-EducationLevels:
-education_level_id (int) (PK) (AI)
+educationlevels
+education_level_id (int(11)) (PK) (AI)
 education_level_name (varchar(255))
-
-GuideRequests:
-request_id (int) (PK) (AI)
-sender_id (int) (NULL) (FK=>sender_id-->Users::user_id)
-receiver_id (int) (NULL) (FK=>receiver_id-->Users::user_id)
+guiderequests
+request_id (int(11)) (PK) (AI)
+sender_id (int(11)) (NULL) (FK=>sender_id-->users::user_id)
+receiver_id (int(11)) (NULL) (FK=>receiver_id-->users::user_id)
 status (enum('pending','accepted','denied'))
 request_timestamp (timestamp) (NULL)
 response_timestamp (timestamp) (NULL)
-
-Interests:
-interest_id (int) (PK) (AI)
+location_id (int(11)) (NULL) (FK=>location_id-->locations::location_id)
+interests
+interest_id (int(11)) (PK) (AI)
 interest_name (varchar(255))
-
-Languages:
-language_id (int) (PK) (AI)
+languages
+language_id (int(11)) (PK) (AI)
 language_name (varchar(255))
-
-Locations:
-location_id (int) (PK) (AI)
+locations
+location_id (int(11)) (PK) (AI)
 location_name (varchar(255))
-country_id (int) (NULL) (FK=>country_id-->Countries::country_id)
-
-Messages:
-message_id (int) (PK) (AI)
-sender_id (int) (NULL) (FK=>sender_id-->Users::user_id)
-receiver_id (int) (NULL) (FK=>receiver_id-->Users::user_id)
+country_id (int(11)) (NULL) (FK=>country_id-->countries::country_id)
+messages
+message_id (int(11)) (PK) (AI)
+sender_id (int(11)) (NULL) (FK=>sender_id-->users::user_id)
+receiver_id (int(11)) (NULL) (FK=>receiver_id-->users::user_id)
 content (text)
 timestamp (timestamp) (NULL)
-
-PlacesToVisit:
-place_id (int) (PK) (AI)
-user_id (int) (NULL) (FK=>user_id-->Users::user_id)
-location_id (int) (FK=>location_id-->Locations::location_id)
-
-Professions:
-profession_id (int) (PK) (AI)
+placestovisit
+place_id (int(11)) (PK) (AI)
+user_id (int(11)) (NULL) (FK=>user_id-->users::user_id)
+location_id (int(11)) (FK=>location_id-->locations::location_id)
+professions
+profession_id (int(11)) (PK) (AI)
 profession_name (varchar(255))
-
-RatingsAndReviews:
-rating_id (int) (PK) (AI)
-sender_id (int) (NULL) (FK=>sender_id-->Users::user_id)
-receiver_id (int) (NULL) (FK=>receiver_id-->Users::user_id)
-rating (int)
+ratingsandreviews
+rating_id (int(11)) (PK) (AI)
+sender_id (int(11)) (NULL) (FK=>sender_id-->users::user_id)
+receiver_id (int(11)) (NULL) (FK=>receiver_id-->users::user_id)
+rating (int(11))
 review_text (text) (NULL)
 timestamp (timestamp) (NULL)
-
-TravelDiary:
-diary_id (int) (PK) (AI)
-user_id (int) (NULL) (FK=>user_id-->Users::user_id)
-title (varchar(255))
-note (text) (NULL)
+diary_id (int(11)) (NULL) (FK=>diary_id-->traveldiary::diary_id)
+traveldiary
+diary_id (int(11)) (PK) (AI)
+tourist_id (int(11)) (NULL) (FK=>tourist_id-->users::user_id)
+tourist_title (varchar(255))
+tourist_note (text) (NULL)
+guide_title (varchar(255)) (NULL)
+guide_note (text) (NULL)
 date_visited (date) (NULL)
-visited_location_id (int) (NULL) (FK=>visited_location_id-->Locations::location_id)
-
-TravelDiaryPhotos:
-photo_id (int) (PK) (AI)
-diary_id (int) (NULL) (FK=>diary_id-->TravelDiary::diary_id)
+visited_location_id (int(11)) (NULL) (FK=>visited_location_id-->locations::location_id)
+guide_id (int(11)) (NULL) (FK=>guide_id-->users::user_id)
+request_id (int(11)) (NULL) (FK=>request_id-->guiderequests::request_id)
+traveldiaryphotos
+photo_id (int(11)) (PK) (AI)
+diary_id (int(11)) (NULL) (FK=>diary_id-->traveldiary::diary_id)
 photo_path (varchar(255))
-
-UserActivities:
-ID (int) (PK) (AI)
-user_id (int) (NULL) (FK=>user_id-->Users::user_id)
-activity_id (int) (NULL) (FK=>activity_id-->Activities::activity_id)
-
-UserCountries:
-ID (int) (PK) (AI)
-user_id (int) (NULL) (FK=>user_id-->Users::user_id)
-country_id (int) (NULL) (FK=>country_id-->Countries::country_id)
-
-UserEducationLevels:
-ID (int) (PK) (AI)
-user_id (int) (NULL) (FK=>user_id-->Users::user_id)
-education_level_id (int) (NULL) (FK=>education_level_id-->EducationLevels::education_level_id)
-
-UserInterests:
-ID (int) (PK) (AI)
-user_id (int) (NULL) (FK=>user_id-->Users::user_id)
-interest_id (int) (NULL) (FK=>interest_id-->Interests::interest_id)
-
-UserLanguages:
-ID (int) (PK) (AI)
-user_id (int) (NULL) (FK=>user_id-->Users::user_id)
-language_id (int) (NULL) (FK=>language_id-->Languages::language_id)
-language_level (int) (NULL)
-
-UserLocations:
-ID (int) (PK) (AI)
-user_id (int) (NULL) (FK=>user_id-->Users::user_id)
-location_id (int) (NULL) (FK=>location_id-->Locations::location_id)
-
-UserLoginRecords:
-record_id (int) (PK) (AI)
-user_id (int) (NULL) (FK=>user_id-->Users::user_id)
+useractivities
+ID (int(11)) (PK) (AI)
+user_id (int(11)) (NULL) (FK=>user_id-->users::user_id)
+activity_id (int(11)) (NULL) (FK=>activity_id-->activities::activity_id)
+usercountries
+ID (int(11)) (PK) (AI)
+user_id (int(11)) (NULL) (FK=>user_id-->users::user_id)
+country_id (int(11)) (NULL) (FK=>country_id-->countries::country_id)
+usercurrentlocation
+current_location_id (int(11)) (PK) (AI)
+user_id (int(11)) (NULL) (FK=>user_id-->users::user_id)
+latitude (decimal(9,6)) (NULL)
+longitude (decimal(9,6)) (NULL)
+usereducationlevels
+ID (int(11)) (PK) (AI)
+user_id (int(11)) (NULL) (FK=>user_id-->users::user_id)
+education_level_id (int(11)) (NULL) (FK=>education_level_id-->educationlevels::education_level_id)
+userinterests
+ID (int(11)) (PK) (AI)
+user_id (int(11)) (NULL) (FK=>user_id-->users::user_id)
+interest_id (int(11)) (NULL) (FK=>interest_id-->interests::interest_id)
+userlanguages
+ID (int(11)) (PK) (AI)
+user_id (int(11)) (NULL) (FK=>user_id-->users::user_id)
+language_id (int(11)) (NULL) (FK=>language_id-->languages::language_id)
+language_level (int(11)) (NULL)
+userlocations
+ID (int(11)) (PK) (AI)
+user_id (int(11)) (NULL) (FK=>user_id-->users::user_id)
+location_id (int(11)) (NULL) (FK=>location_id-->locations::location_id)
+userloginrecords
+record_id (int(11)) (PK) (AI)
+user_id (int(11)) (NULL) (FK=>user_id-->users::user_id)
 login_timestamp (timestamp) (NULL)
 logout_timestamp (timestamp) (NULL)
-session_duration (int) (NULL)
+session_duration (int(11)) (NULL)
 login_status (tinyint(1))
-
-UserProfessions:
-ID (int) (PK) (AI)
-user_id (int) (FK=>user_id-->Users::user_id)
-profession_id (int) (FK=>profession_id-->Professions::profession_id)
-years_of_experience (int) (NULL)
-
-UserProfiles:
-profile_id (int) (PK) (AI)
-user_id (int) (NULL) (FK=>user_id-->Users::user_id)
+userpictures
+picture_id (int(11)) (PK) (AI)
+picture_path (varchar(255))
+is_profile_picture (tinyint(1))
+user_id (int(11)) (NULL) (FK=>user_id-->users::user_id)
+userprofessions
+ID (int(11)) (PK) (AI)
+user_id (int(11)) (FK=>user_id-->users::user_id)
+profession_id (int(11)) (FK=>profession_id-->professions::profession_id)
+years_of_experience (int(11)) (NULL)
+userprofiles
+profile_id (int(11)) (PK) (AI)
+user_id (int(11)) (NULL) (FK=>user_id-->users::user_id)
 name (varchar(255))
 surname (varchar(255))
 phone_number (varchar(255)) (NULL)
@@ -132,27 +126,14 @@ profile_picture_path (varchar(255)) (NULL)
 algorithm_data_file_path (varchar(255)) (NULL)
 has_car (tinyint(1)) (NULL)
 has_house (tinyint(1)) (NULL)
-
-UserPictures
-picture_id (int) (PK) (AI)
-picture_path (varchar(255))
-is_profile_picture (tinyint(1))
-user_id (int) (NULL) (FK=>user_id-->Users::user_id)
-
-UserCurrentLocation
-current_location_id (int) (PK) (AI)
-user_id (int) (NULL) (FK=>user_id-->Users::user_id)
-latitude (DECIMAL(9, 6))
-longitude (DECIMAL(9, 6))
-
-UserRoles:
-role_id (int) (PK) (AI)
+hourly_wage (varchar(255)) (NULL)
+userroles
+role_id (int(11)) (PK) (AI)
 role_name (varchar(255))
-
-Users:
-user_id (int) (PK) (AI)
+users
+user_id (int(11)) (PK) (AI)
 username (varchar(255))
 email (varchar(255))
 password (varchar(255))
-role_id (int) (NULL) (FK=>role_id-->UserRoles::role_id)
+role_id (int(11)) (NULL) (FK=>role_id-->userroles::role_id)
 is_deleted (tinyint(1))
