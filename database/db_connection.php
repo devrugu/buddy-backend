@@ -1,10 +1,10 @@
 <?php
-require '../vendor/autoload.php';
+//require '../vendor/autoload.php';
 
-$dotenv = Dotenv\Dotenv::createImmutable("../");
-$dotenv->load();
+/* $dotenv = Dotenv\Dotenv::createImmutable("../");
+$dotenv->load(); */
 
-$servername = $_ENV['SERVER_N'];
+$servername = $_ENV['SERVER_NAME'];
 $username = $_ENV['USER_NAME'];
 $password = $_ENV['PASSWORD'];
 $dbname = $_ENV['DATABASE_NAME'];
