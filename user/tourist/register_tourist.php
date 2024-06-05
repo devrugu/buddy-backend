@@ -61,16 +61,14 @@ foreach ($queries as $query => $param) {
     }
 }
 
-// Kullanıcıyı Users tablosuna ekle
 $queryUser = "INSERT INTO Users (username, email, password, role_id, is_deleted) VALUES (?, ?, ?, ?, ?)";
 $stmt = $conn->prepare($queryUser);
-$hashed_password = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
+$hashed_password = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]); // random cost degeri verilebilir
 $stmt->bind_param("ssssi", $username, $email, $hashed_password, $role_id, $is_deleted);
 
 if ($stmt->execute()) {
     $last_id = $stmt->insert_id;
 
-    // Kullanıcının ülke bilgisini UserCountries tablosuna ekle
     $queryCountryUser = "INSERT INTO UserCountries (user_id, country_id) VALUES (?, ?)";
     $stmt = $conn->prepare($queryCountryUser);
     $stmt->bind_param("ii", $last_id, $country_id);
@@ -79,7 +77,6 @@ if ($stmt->execute()) {
         exit;
     }
 
-    // Kullanıcının profilini UserProfiles tablosuna ekle
     $queryProfile = "INSERT INTO UserProfiles (user_id, name, surname, phone_number, birth_date) VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($queryProfile);
     $stmt->bind_param("issss", $last_id, $name, $surname, $phoneNumber, $dateOfBirth);
@@ -94,4 +91,3 @@ if ($stmt->execute()) {
 
 $stmt->close();
 $conn->close();
-?>

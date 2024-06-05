@@ -1,8 +1,7 @@
 <?php
-
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 require '../../vendor/autoload.php';
@@ -19,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 
 include '../../database/db_connection.php';
 
-$response = ['error' => false, 'message' => '', 'requests' => []];
+$response = ['error' => false, 'message' => ''];
 
 $authHeader = null;
 if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
@@ -35,7 +34,7 @@ if (!$authHeader) {
     $response['error'] = true;
     $response['message'] = 'Authorization header is missing';
     echo json_encode($response);
-    exit;
+    exit();
 }
 
 list($jwt) = sscanf($authHeader, 'Bearer %s');
@@ -44,7 +43,7 @@ if (!$jwt) {
     $response['error'] = true;
     $response['message'] = 'JWT token is missing';
     echo json_encode($response);
-    exit;
+    exit();
 }
 
 try {
@@ -53,50 +52,45 @@ try {
     $response['error'] = true;
     $response['message'] = 'JWT token is invalid: ' . $e->getMessage();
     echo json_encode($response);
-    exit;
+    exit();
 }
 
 $user_id = $decoded->data->user_id;
-$status = $_GET['status'];
 
-$query = "
-    SELECT gr.request_id, gr.sender_id AS tourist_id, up.name, up.surname, gr.status,
-           (SELECT AVG(rating) FROM RatingsAndReviews WHERE receiver_id = gr.sender_id) AS rating,
-           (SELECT COUNT(*) FROM RatingsAndReviews WHERE receiver_id = gr.sender_id) AS reviews,
-           td.diary_id IS NOT NULL AS service_finished
-    FROM GuideRequests gr
-    JOIN Users u ON gr.sender_id = u.user_id
-    JOIN UserProfiles up ON gr.sender_id = up.user_id
-    LEFT JOIN TravelDiary td ON gr.request_id = td.request_id
-    WHERE gr.receiver_id = ? AND gr.status = ?
-";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("is", $user_id, $status);
-$stmt->execute();
-$result = $stmt->get_result();
-
-$requests = [];
-while ($row = $result->fetch_assoc()) {
-    $row['pictures'] = getTouristPictures($row['tourist_id'], $conn);
-    $requests[] = $row;
+$input = json_decode(file_get_contents('php://input'), true);
+if (json_last_error() !== JSON_ERROR_NONE) {
+    $response['error'] = true;
+    $response['message'] = 'Invalid JSON input';
+    echo json_encode($response);
+    exit();
 }
 
-$response['requests'] = $requests;
+$tourist_id = $input['tourist_id'];
+
+$stmt = $conn->prepare("SELECT location_id FROM UserLocations WHERE user_id = ?");
+$stmt->bind_param('i', $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$location = $result->fetch_assoc();
+$location_id = $location['location_id'];
+
+$query = "
+    INSERT INTO TravelDiary (tourist_id, guide_id, visited_location_id, date_visited, request_id) 
+    VALUES (?, ?, ?, NOW(), ?)
+";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("iiii", $tourist_id, $user_id, $location_id, $input['request_id']);
+$stmt->execute();
+
+if ($stmt->affected_rows > 0) {
+    $response['message'] = 'Service finished and saved to travel diary';
+} else {
+    $response['error'] = true;
+    $response['message'] = 'Failed to save service information';
+}
 
 $stmt->close();
 $conn->close();
 
 echo json_encode($response);
-
-function getTouristPictures($user_id, $conn) {
-    $query = "SELECT picture_path FROM UserPictures WHERE user_id = ? AND is_profile_picture = 0";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $pictures = [];
-    while ($row = $result->fetch_assoc()) {
-        $pictures[] = $row['picture_path'];
-    }
-    return $pictures;
-}
+?>

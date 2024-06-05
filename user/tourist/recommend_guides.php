@@ -79,7 +79,7 @@ $user_lng = $user_location['longitude'];
 
 $response['message'] = "User Location: Latitude - $user_lat, Longitude - $user_lng";
 
-$radius = 500; // Radius in kilometers
+$radius = 50; // Radius in kilometers
 
 $query = "
     SELECT u.user_id, up.name, up.surname, ul.latitude, ul.longitude, uc.country_id, r.rating, rr.reviews, up.hourly_wage
@@ -91,7 +91,18 @@ $query = "
     LEFT JOIN (SELECT receiver_id, COUNT(*) as reviews FROM RatingsAndReviews GROUP BY receiver_id) rr ON u.user_id = rr.receiver_id
     WHERE u.user_id != ? 
     AND u.role_id = 2 
-    AND u.user_id NOT IN (SELECT receiver_id FROM GuideRequests WHERE sender_id = ? AND status = 'pending')
+    AND u.user_id NOT IN (
+        SELECT receiver_id 
+        FROM GuideRequests 
+        WHERE sender_id = ? 
+        AND status IN ('pending', 'accepted')
+        AND NOT EXISTS (
+            SELECT 1 
+            FROM TravelDiary 
+            WHERE tourist_id = ? 
+            AND guide_id = receiver_id
+        )
+    )
     AND (
         6371 * acos (
             cos ( radians(?) )
@@ -103,7 +114,7 @@ $query = "
     ) < ?
 ";
 $stmt = $conn->prepare($query);
-$stmt->bind_param("iidddi", $user_id, $user_id, $user_lat, $user_lng, $user_lat, $radius);
+$stmt->bind_param("iiidddi", $user_id, $user_id, $user_id, $user_lat, $user_lng, $user_lat, $radius);
 $stmt->execute();
 $result = $stmt->get_result();
 

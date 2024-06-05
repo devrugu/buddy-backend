@@ -16,7 +16,6 @@ $dbname = 'buddy_database';
 
 // MySQL'e bağlan
 $conn = new mysqli($servername, $username, $password, $dbname);
-// var_dump($_ENV);
 // Bağlantı kontrolü
 if ($conn->connect_error) {
     die("Bağlantı hatası: " . $conn->connect_error);
