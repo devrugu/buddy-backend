@@ -4,10 +4,10 @@
 /* $dotenv = Dotenv\Dotenv::createImmutable("../");
 $dotenv->load(); */
 
-$servername = getenv('SERVER_NAME');
-$username = getenv('USER_NAME');
-$password = getenv('PASSWORD');
-$dbname = getenv('DATABASE_NAME');
+$servername = $_ENV['SERVER_NAME'];
+$username = $_ENV['USER_NAME'];
+$password = $_ENV['PASSWORD'];
+$dbname = $_ENV['DATABASE_NAME'];
 
 /* $servername = 'localhost';
 $username = 'root';
