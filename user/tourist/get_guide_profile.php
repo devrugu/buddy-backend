@@ -69,15 +69,15 @@ function fetchGuideProfile($conn, $user_id) {
                COUNT(r.rating_id) AS review_count,
                GROUP_CONCAT(DISTINCT ur.review_text ORDER BY ur.timestamp DESC SEPARATOR '|||') AS review_texts,
                GROUP_CONCAT(DISTINCT ur.rating ORDER BY ur.timestamp DESC SEPARATOR '|||') AS review_ratings
-        FROM UserProfiles up
-        LEFT JOIN UserLanguages ul ON up.user_id = ul.user_id
-        LEFT JOIN Languages l ON ul.language_id = l.language_id
-        LEFT JOIN UserActivities ua ON up.user_id = ua.user_id
-        LEFT JOIN Activities a ON ua.activity_id = a.activity_id
-        LEFT JOIN UserProfessions uprof ON up.user_id = uprof.user_id
-        LEFT JOIN Professions p ON uprof.profession_id = p.profession_id
-        LEFT JOIN RatingsAndReviews r ON up.user_id = r.receiver_id
-        LEFT JOIN RatingsAndReviews ur ON up.user_id = ur.receiver_id
+        FROM userprofiles up
+        LEFT JOIN userlanguages ul ON up.user_id = ul.user_id
+        LEFT JOIN languages l ON ul.language_id = l.language_id
+        LEFT JOIN useractivities ua ON up.user_id = ua.user_id
+        LEFT JOIN activities a ON ua.activity_id = a.activity_id
+        LEFT JOIN userprofessions uprof ON up.user_id = uprof.user_id
+        LEFT JOIN professions p ON uprof.profession_id = p.profession_id
+        LEFT JOIN ratingsandreviews r ON up.user_id = r.receiver_id
+        LEFT JOIN ratingsandreviews ur ON up.user_id = ur.receiver_id
         WHERE up.user_id = ?
         GROUP BY up.user_id
     ");

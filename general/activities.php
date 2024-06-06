@@ -8,8 +8,8 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 // Aktivite kategorilerini ve her kategoriye ait aktiviteleri çekme
 $query = "
     SELECT ac.category_id, ac.category_name, a.activity_id, a.activity_name
-    FROM ActivityCategories ac
-    LEFT JOIN Activities a ON ac.category_id = a.category_id
+    FROM activitycategories ac
+    LEFT JOIN activities a ON ac.category_id = a.category_id
     ORDER BY ac.category_id, a.activity_name";
 
 $result = $conn->query($query);

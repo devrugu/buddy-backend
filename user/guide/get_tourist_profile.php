@@ -68,7 +68,7 @@ function fetchTouristProfile($conn, $tourist_id) {
                COUNT(r.rating_id) AS review_count,
                GROUP_CONCAT(DISTINCT ur.review_text ORDER BY ur.timestamp DESC SEPARATOR '|||') AS review_texts,
                GROUP_CONCAT(DISTINCT ur.rating ORDER BY ur.timestamp DESC SEPARATOR '|||') AS review_ratings
-        FROM UserProfiles up
+        FROM userprofiles up
         LEFT JOIN UserLanguages ul ON up.user_id = ul.user_id
         LEFT JOIN Languages l ON ul.language_id = l.language_id
         LEFT JOIN UserActivities ua ON up.user_id = ua.user_id
@@ -93,7 +93,7 @@ function fetchTouristProfile($conn, $tourist_id) {
 }
 
 function getTouristImages($user_id, $conn) {
-    $stmt = $conn->prepare("SELECT picture_path FROM UserPictures WHERE user_id = ? AND is_profile_picture = 0");
+    $stmt = $conn->prepare("SELECT picture_path FROM userpictures WHERE user_id = ? AND is_profile_picture = 0");
     $stmt->bind_param('i', $user_id);
     $stmt->execute();
     $result = $stmt->get_result();

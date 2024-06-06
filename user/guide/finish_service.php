@@ -67,7 +67,7 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 
 $tourist_id = $input['tourist_id'];
 
-$stmt = $conn->prepare("SELECT location_id FROM UserLocations WHERE user_id = ?");
+$stmt = $conn->prepare("SELECT location_id FROM userlocations WHERE user_id = ?");
 $stmt->bind_param('i', $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -75,7 +75,7 @@ $location = $result->fetch_assoc();
 $location_id = $location['location_id'];
 
 $query = "
-    INSERT INTO TravelDiary (tourist_id, guide_id, visited_location_id, date_visited, request_id) 
+    INSERT INTO traveldiary (tourist_id, guide_id, visited_location_id, date_visited, request_id) 
     VALUES (?, ?, ?, NOW(), ?)
 ";
 $stmt = $conn->prepare($query);

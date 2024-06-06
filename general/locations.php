@@ -20,7 +20,7 @@ $key = getenv('JWT_SECRET_KEY');
 $decoded = JWT::decode($jwt, new Key($key, 'HS256'));
 $country_id = $decoded->data->country_id;
 
-$query = "SELECT location_id, location_name FROM Locations WHERE country_id=$country_id ORDER BY location_name";
+$query = "SELECT location_id, location_name FROM locations WHERE country_id=$country_id ORDER BY location_name";
 $result = $conn->query($query);
 
 $locations = [];

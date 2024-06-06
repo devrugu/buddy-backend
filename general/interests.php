@@ -5,7 +5,7 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
 // Hobileri çek
-$query = "SELECT interest_id, interest_name FROM Interests ORDER BY interest_name";
+$query = "SELECT interest_id, interest_name FROM interests ORDER BY interest_name";
 $result = $conn->query($query);
 
 $interests = [];

@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $decoded = JWT::decode($jwt, new Key(getenv('JWT_SECRET_KEY'), 'HS256'));
         $user_id = $decoded->data->user_id;
 
-        $query = "SELECT user_id, role_id, is_deleted FROM Users WHERE user_id = ? AND is_deleted = 0";
+        $query = "SELECT user_id, role_id, is_deleted FROM users WHERE user_id = ? AND is_deleted = 0";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("i", $user_id);
         $stmt->execute();

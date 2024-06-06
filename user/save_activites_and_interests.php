@@ -31,7 +31,7 @@ if ($jwt) {
         // Begin transaction
         $conn->begin_transaction();
 
-        $stmtActivity = $conn->prepare("INSERT INTO UserActivities (user_id, activity_id) VALUES (?, ?)");
+        $stmtActivity = $conn->prepare("INSERT INTO useractivities (user_id, activity_id) VALUES (?, ?)");
         foreach ($selectedActivities as $activityId) {
             $stmtActivity->bind_param("ii", $user_id, $activityId);
             if(!$stmtActivity->execute()) {
@@ -44,7 +44,7 @@ if ($jwt) {
             }
         }
 
-        $stmtInterest = $conn->prepare("INSERT INTO UserInterests (user_id, interest_id) VALUES (?, ?)");
+        $stmtInterest = $conn->prepare("INSERT INTO userinterests (user_id, interest_id) VALUES (?, ?)");
         foreach ($selectedInterests as $interestName) {
             // Look up the interest_id based on the interest name
             $interestId = getInterestId($conn, $interestName);
@@ -83,7 +83,7 @@ if ($jwt) {
 }
 
 function getInterestId($conn, $interestName) {
-    $checkQuery = "SELECT interest_id FROM Interests WHERE interest_name = ?";
+    $checkQuery = "SELECT interest_id FROM interests WHERE interest_name = ?";
     $checkStmt = $conn->prepare($checkQuery);
     $checkStmt->bind_param("s", $interestName);
     $checkStmt->execute();

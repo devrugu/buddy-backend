@@ -61,13 +61,13 @@ $status = $_GET['status'];
 
 $query = "
     SELECT gr.request_id, gr.sender_id AS tourist_id, up.name, up.surname, gr.status,
-           (SELECT AVG(rating) FROM RatingsAndReviews WHERE receiver_id = gr.sender_id) AS rating,
-           (SELECT COUNT(*) FROM RatingsAndReviews WHERE receiver_id = gr.sender_id) AS reviews,
+           (SELECT AVG(rating) FROM ratingsandreviews WHERE receiver_id = gr.sender_id) AS rating,
+           (SELECT COUNT(*) FROM ratingsandreviews WHERE receiver_id = gr.sender_id) AS reviews,
            td.diary_id IS NOT NULL AS service_finished
-    FROM GuideRequests gr
-    JOIN Users u ON gr.sender_id = u.user_id
-    JOIN UserProfiles up ON gr.sender_id = up.user_id
-    LEFT JOIN TravelDiary td ON gr.request_id = td.request_id
+    FROM guiderequests gr
+    JOIN users u ON gr.sender_id = u.user_id
+    JOIN userprofiles up ON gr.sender_id = up.user_id
+    LEFT JOIN traveldiary td ON gr.request_id = td.request_id
     WHERE gr.receiver_id = ? AND gr.status = ?
 ";
 $stmt = $conn->prepare($query);
@@ -89,7 +89,7 @@ $conn->close();
 echo json_encode($response);
 
 function getTouristPictures($user_id, $conn) {
-    $query = "SELECT picture_path FROM UserPictures WHERE user_id = ? AND is_profile_picture = 0";
+    $query = "SELECT picture_path FROM userpictures WHERE user_id = ? AND is_profile_picture = 0";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $user_id);
     $stmt->execute();

@@ -23,7 +23,7 @@ $role_id = 1;
 $is_deleted = 0;
 
 // Ülke ID'sini bul
-$query = "SELECT country_id FROM Countries WHERE country_name = ?";
+$query = "SELECT country_id FROM countries WHERE country_name = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("s", $country);
 $stmt->execute();
@@ -37,9 +37,9 @@ if ($countryRow = $resultCountry->fetch_assoc()) {
 
 // Username, e-mail ve telefon numarası kontrolü
 $queries = [
-    "SELECT user_id FROM Users WHERE username = ?" => $username,
-    "SELECT user_id FROM Users WHERE email = ?" => $email,
-    "SELECT profile_id FROM UserProfiles WHERE phone_number = ?" => $phoneNumber
+    "SELECT user_id FROM users WHERE username = ?" => $username,
+    "SELECT user_id FROM users WHERE email = ?" => $email,
+    "SELECT profile_id FROM userprofiles WHERE phone_number = ?" => $phoneNumber
 ];
 
 foreach ($queries as $query => $param) {
@@ -61,7 +61,7 @@ foreach ($queries as $query => $param) {
     }
 }
 
-$queryUser = "INSERT INTO Users (username, email, password, role_id, is_deleted) VALUES (?, ?, ?, ?, ?)";
+$queryUser = "INSERT INTO users (username, email, password, role_id, is_deleted) VALUES (?, ?, ?, ?, ?)";
 $stmt = $conn->prepare($queryUser);
 $hashed_password = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]); // random cost degeri verilebilir
 $stmt->bind_param("ssssi", $username, $email, $hashed_password, $role_id, $is_deleted);
@@ -69,7 +69,7 @@ $stmt->bind_param("ssssi", $username, $email, $hashed_password, $role_id, $is_de
 if ($stmt->execute()) {
     $last_id = $stmt->insert_id;
 
-    $queryCountryUser = "INSERT INTO UserCountries (user_id, country_id) VALUES (?, ?)";
+    $queryCountryUser = "INSERT INTO usercountries (user_id, country_id) VALUES (?, ?)";
     $stmt = $conn->prepare($queryCountryUser);
     $stmt->bind_param("ii", $last_id, $country_id);
     if (!$stmt->execute()) {
@@ -77,7 +77,7 @@ if ($stmt->execute()) {
         exit;
     }
 
-    $queryProfile = "INSERT INTO UserProfiles (user_id, name, surname, phone_number, birth_date) VALUES (?, ?, ?, ?, ?)";
+    $queryProfile = "INSERT INTO userprofiles (user_id, name, surname, phone_number, birth_date) VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($queryProfile);
     $stmt->bind_param("issss", $last_id, $name, $surname, $phoneNumber, $dateOfBirth);
     if ($stmt->execute()) {

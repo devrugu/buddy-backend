@@ -59,7 +59,7 @@ function getAuthorizationHeader() {
 
 function sendInvitation($conn, $sender_id, $receiver_id) {
     $stmt = $conn->prepare("
-        INSERT INTO GuideRequests (sender_id, receiver_id, status, request_timestamp) 
+        INSERT INTO guiderequests (sender_id, receiver_id, status, request_timestamp) 
         VALUES (?, ?, 'pending', NOW())
     ");
     $stmt->bind_param('ii', $sender_id, $receiver_id);

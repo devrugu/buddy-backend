@@ -4,7 +4,7 @@ require_once '../database/db_connection.php';
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-$query = "SELECT profession_id, profession_name FROM Professions ORDER BY profession_name";
+$query = "SELECT profession_id, profession_name FROM professions ORDER BY profession_name";
 $result = $conn->query($query);
 
 $professions = [];

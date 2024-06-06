@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $query = "SELECT user_id, password, role_id FROM Users WHERE username = ? AND is_deleted = 0";
+    $query = "SELECT user_id, password, role_id FROM users WHERE username = ? AND is_deleted = 0";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $user = $result->fetch_assoc();
         if (password_verify($password, $user['password'])) {
-            $query = "SELECT country_id FROM UserCountries WHERE user_id = ?";
+            $query = "SELECT country_id FROM usercountries WHERE user_id = ?";
             $stmt = $conn->prepare($query);
             $stmt->bind_param("i", $user['user_id']);
             $stmt->execute();
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user_id = $user['user_id'];
             $login_status = 1; // 1: successful, 0: failed
             $login_timestamp = date("Y-m-d H:i:s"); // Current timestamp for login
-            $query = 'INSERT INTO UserLoginRecords (user_id, login_timestamp, login_status) VALUES (?, ?, ?)';
+            $query = 'INSERT INTO userloginrecords (user_id, login_timestamp, login_status) VALUES (?, ?, ?)';
             $stmt = $conn->prepare($query);
             $stmt->bind_param('isi', $user_id, $login_timestamp, $login_status);
             $stmt->execute();
@@ -86,12 +86,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 function checkMissingProfileInfo($conn, $user_id) {
     $missing_info = [];
     $tables = [
-        'UserActivities' => 'activity_id',
-        'UserEducationLevels' => 'education_level_id',
-        'UserInterests' => 'interest_id',
-        'UserLanguages' => 'language_id',
-        'UserLocations' => 'location_id',
-        'UserProfessions' => 'profession_id',
+        'useractivities' => 'activity_id',
+        'usereducationlevels' => 'education_level_id',
+        'userinterests' => 'interest_id',
+        'userlanguages' => 'language_id',
+        'userlocations' => 'location_id',
+        'userprofessions' => 'profession_id',
     ];
     
     foreach ($tables as $table => $column) {
@@ -101,7 +101,7 @@ function checkMissingProfileInfo($conn, $user_id) {
         $stmt->execute();
         $result = $stmt->get_result();
         if ($result->num_rows === 0) {
-            $missing_info[] = strtolower(str_replace('User', '', $table));
+            $missing_info[] = strtolower(str_replace('user', '', $table));
         }
     }
     return $missing_info;

@@ -4,7 +4,7 @@ require_once '../database/db_connection.php';
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-$query = "SELECT education_level_id, education_level_name FROM EducationLevels ORDER BY education_level_name";
+$query = "SELECT education_level_id, education_level_name FROM educationlevels ORDER BY education_level_name";
 $result = $conn->query($query);
 
 $educationLevels = [];

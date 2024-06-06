@@ -61,7 +61,7 @@ if (!$latitude || !$longitude) {
 }
 
 // Use INSERT ... ON DUPLICATE KEY UPDATE
-$query = "INSERT INTO UserCurrentLocation (user_id, latitude, longitude) VALUES (?, ?, ?)
+$query = "INSERT INTO usercurrentlocation (user_id, latitude, longitude) VALUES (?, ?, ?)
           ON DUPLICATE KEY UPDATE latitude = VALUES(latitude), longitude = VALUES(longitude)";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("idd", $user_id, $latitude, $longitude);

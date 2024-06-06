@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $decoded = JWT::decode($jwt, new Key(getenv('JWT_SECRET_KEY'), 'HS256'));
         $user_id = $decoded->data->user_id;
 
-        $query = "SELECT login_timestamp FROM UserLoginRecords WHERE user_id = ? AND login_status = 1 ORDER BY login_timestamp DESC LIMIT 1";
+        $query = "SELECT login_timestamp FROM userloginrecords WHERE user_id = ? AND login_status = 1 ORDER BY login_timestamp DESC LIMIT 1";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("i", $user_id);
         $stmt->execute();
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $logout_timestamp = date("Y-m-d H:i:s");
         $session_duration = strtotime($logout_timestamp) - strtotime($login_timestamp);
 
-        $update_query = "UPDATE UserLoginRecords SET logout_timestamp = ?, session_duration = ?, login_status = 0 WHERE user_id = ? AND login_timestamp = ?";
+        $update_query = "UPDATE userloginrecords SET logout_timestamp = ?, session_duration = ?, login_status = 0 WHERE user_id = ? AND login_timestamp = ?";
         $stmt = $conn->prepare($update_query);
         $stmt->bind_param("siis", $logout_timestamp, $session_duration, $user_id, $login_timestamp);
         $stmt->execute();

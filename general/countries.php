@@ -5,7 +5,7 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 
 require_once __DIR__ . '/../database/db_connection.php';
 
-$query = "SELECT country_name FROM Countries"; // Ülkelerin olduğu sütunu ve tabloyu doğrula
+$query = "SELECT country_name FROM countries"; // Ülkelerin olduğu sütunu ve tabloyu doğrula
 $result = mysqli_query($conn, $query);
 
 $countries = array();

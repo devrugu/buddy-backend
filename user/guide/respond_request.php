@@ -68,7 +68,7 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 
 $status = $input['status'];
 
-$stmt = $conn->prepare("SELECT location_id FROM UserLocations WHERE user_id = ?");
+$stmt = $conn->prepare("SELECT location_id FROM userlocations WHERE user_id = ?");
 $stmt->bind_param('i', $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -76,7 +76,7 @@ $location = $result->fetch_assoc();
 $location_id = $location['location_id'];
 
 $query = "
-    UPDATE GuideRequests 
+    UPDATE guiderequests 
     SET status = ?, response_timestamp = NOW(), location_id = ?
     WHERE sender_id = ? AND receiver_id = ?
 ";

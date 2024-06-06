@@ -29,7 +29,7 @@ if ($jwt) {
 
         // Eğitim seviyesi ekleme işlemi
         if (!empty($data['selectedEducationLevelId'])) {
-            $query = "INSERT INTO UserEducationLevels (user_id, education_level_id) VALUES (?, ?)";
+            $query = "INSERT INTO usereducationlevels (user_id, education_level_id) VALUES (?, ?)";
             $stmt = $conn->prepare($query);
             if (!$stmt) {
                 $response['errors'][] = "Prepare failed for education level insertion: " . $conn->error;
@@ -46,7 +46,7 @@ if ($jwt) {
         // Dilleri ekleme işlemi
         if (!empty($data['selectedLanguages'])) {
             foreach ($data['selectedLanguages'] as $languageName => $level) {
-                $langQuery = "SELECT language_id FROM Languages WHERE language_name = ?";
+                $langQuery = "SELECT language_id FROM languages WHERE language_name = ?";
                 $langStmt = $conn->prepare($langQuery);
                 if (!$langStmt) {
                     $response['errors'][] = "Prepare failed for language selection: " . $conn->error;
@@ -58,7 +58,7 @@ if ($jwt) {
                 $langResult = $langStmt->get_result();
                 if ($langRow = $langResult->fetch_assoc()) {
                     $languageId = $langRow['language_id'];
-                    $langInsQuery = "INSERT INTO UserLanguages (user_id, language_id, language_level) VALUES (?, ?, ?)";
+                    $langInsQuery = "INSERT INTO userlanguages (user_id, language_id, language_level) VALUES (?, ?, ?)";
                     $langInsStmt = $conn->prepare($langInsQuery);
                     if (!$langInsStmt) {
                         $response['errors'][] = "Prepare failed for language insertion: " . $conn->error;
@@ -79,7 +79,7 @@ if ($jwt) {
 
         // Konumu kaydetme işlemi
         if (!empty($data['selectedLocationId'])) {
-            $locQuery = "INSERT INTO UserLocations (user_id, location_id) VALUES (?, ?)";
+            $locQuery = "INSERT INTO userlocations (user_id, location_id) VALUES (?, ?)";
             $locStmt = $conn->prepare($locQuery);
             if (!$locStmt) {
                 $response['errors'][] = "Prepare failed for location insertion: " . $conn->error;
@@ -96,7 +96,7 @@ if ($jwt) {
         // Meslekleri kaydetme işlemi
         if (!empty($data['selectedProfessions'])) {
             foreach ($data['selectedProfessions'] as $professionName => $years) {
-                $profQuery = "SELECT profession_id FROM Professions WHERE profession_name = ?";
+                $profQuery = "SELECT profession_id FROM professions WHERE profession_name = ?";
                 $profStmt = $conn->prepare($profQuery);
                 if (!$profStmt) {
                     $response['errors'][] = "Prepare failed for profession selection: " . $conn->error;
@@ -108,7 +108,7 @@ if ($jwt) {
                 $profResult = $profStmt->get_result();
                 if ($profRow = $profResult->fetch_assoc()) {
                     $professionId = $profRow['profession_id'];
-                    $profInsQuery = "INSERT INTO UserProfessions (user_id, profession_id, years_of_experience) VALUES (?, ?, ?)";
+                    $profInsQuery = "INSERT INTO userprofessions (user_id, profession_id, years_of_experience) VALUES (?, ?, ?)";
                     $profInsStmt = $conn->prepare($profInsQuery);
                     if (!$profInsStmt) {
                         $response['errors'][] = "Prepare failed for profession insertion: " . $conn->error;
