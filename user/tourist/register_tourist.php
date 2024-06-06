@@ -1,7 +1,7 @@
 <?php
-/* require_once '../../vendor/autoload.php';
+require_once '../../vendor/autoload.php';
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
+/* $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
 $dotenv->load(); */
 
 include __DIR__ . '/../../database/db_connection.php';

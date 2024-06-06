@@ -5,8 +5,8 @@ header('Access-Control-Allow-Origin: *');
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
-/* require '../../vendor/autoload.php';
-$dotenv = Dotenv\Dotenv::createImmutable("../../");
+require '../../vendor/autoload.php';
+/* $dotenv = Dotenv\Dotenv::createImmutable("../../");
 $dotenv->load(); */
 
 use Firebase\JWT\JWT;

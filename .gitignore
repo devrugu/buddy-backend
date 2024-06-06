@@ -1,5 +1,5 @@
 # Ignore vendor directory
-/vendor/
+
 # Ignore .env file
 .env
 update_database.sh
