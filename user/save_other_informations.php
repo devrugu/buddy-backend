@@ -4,12 +4,12 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Content-Type: application/json");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
-require_once '../vendor/autoload.php';
+/* require_once '../vendor/autoload.php'; */
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
-$dotenv->load();
+/* $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+$dotenv->load(); */
 
 include '../database/db_connection.php';
 
