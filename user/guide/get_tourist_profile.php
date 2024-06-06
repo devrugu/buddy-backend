@@ -30,7 +30,7 @@ try {
         throw new Exception('JWT token is missing');
     }
 
-    $decoded = JWT::decode($jwt, new Key($_ENV['JWT_SECRET_KEY'], 'HS256'));
+    $decoded = JWT::decode($jwt, new Key(getenv('JWT_SECRET_KEY'), 'HS256'));
 
     if (!isset($decoded->tourist_id)) {
         throw new Exception('Tourist ID is missing in JWT token');
