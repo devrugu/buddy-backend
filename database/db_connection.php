@@ -1,19 +1,10 @@
 <?php
-/* require '../vendor/autoload.php';
-
-$dotenv = Dotenv\Dotenv::createImmutable("../");
-$dotenv->load(); */
 
 $servername = getenv('SERVER_NAME');
 $username = getenv('USER_NAME');
 $password = getenv('PASSWORD');
 $dbname = getenv('DATABASE_NAME');
 $port = getenv('PORT');
-
-/* $servername = 'localhost';
-$username = 'root';
-$password = '';
-$dbname = 'buddy_database'; */
 
 // MySQL'e bağlan
 $conn = new mysqli($servername, $username, $password, $dbname, $port);
