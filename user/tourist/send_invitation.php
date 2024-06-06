@@ -28,7 +28,7 @@ try {
         throw new Exception('JWT token is missing');
     }
 
-    $decoded = JWT::decode($jwt, new Key($_ENV['JWT_SECRET_KEY'], 'HS256'));
+    $decoded = JWT::decode($jwt, new Key(getenv('JWT_SECRET_KEY'), 'HS256'));
     $sender_id = $decoded->data->user_id;
 
     $data = json_decode(file_get_contents('php://input'), true);
