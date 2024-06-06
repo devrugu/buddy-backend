@@ -1737,7 +1737,9 @@ $tableName = "GuideRequests";
 
 $query = "ALTER TABLE $tableName DROP FOREIGN KEY $foreign_key_name;"; */
 
-
+$query = "SELECT concat('DROP TABLE IF EXISTS `', table_name, '`;')
+FROM information_schema.tables
+WHERE table_schema = 'railway';";
 
 mysqli_query($conn, $query);
 
