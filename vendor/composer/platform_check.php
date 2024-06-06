@@ -4,8 +4,8 @@
 
 $issues = array();
 
-if (!(PHP_VERSION_ID >= 80212)) {
-    $issues[] = 'Your Composer dependencies require a PHP version ">= 8.2.12". You are running ' . PHP_VERSION . '.';
+if (!(PHP_VERSION_ID >= 80210)) {
+    $issues[] = 'Your Composer dependencies require a PHP version ">= 8.2.10". You are running ' . PHP_VERSION . '.';
 }
 
 if ($issues) {
