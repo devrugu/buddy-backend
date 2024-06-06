@@ -47,7 +47,7 @@ if (!$jwt) {
 }
 
 try {
-    $decoded = JWT::decode($jwt, new Key($_ENV['JWT_SECRET_KEY'], 'HS256'));
+    $decoded = JWT::decode($jwt, new Key(getenv('JWT_SECRET_KEY'), 'HS256'));
 } catch (Exception $e) {
     $response['error'] = true;
     $response['message'] = 'JWT token is invalid: ' . $e->getMessage();
