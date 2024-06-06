@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 "iss" => "your_issuer",
                 "aud" => "your_audience",
                 "iat" => time(),
-                "exp" => time() + (int)getenv('JWT_EXPIRATION'),
+                "exp" => time() + (int)getenv('JWT_EXPIRATION'), // 7776000
                 "data" => [
                     "user_id" => $user['user_id'],
                     "country_id" => $country_id,
