@@ -40,12 +40,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $stmt->get_result();
             $country_id = $result->fetch_assoc()['country_id'];
 
-            $key = $_ENV['JWT_SECRET_KEY'];
+            $key = getenv('JWT_SECRET_KEY');
             $payload = [
                 "iss" => "your_issuer",
                 "aud" => "your_audience",
                 "iat" => time(),
-                "exp" => time() + (int)$_ENV['JWT_EXPIRATION'],
+                "exp" => time() + (int)getenv('JWT_EXPIRATION'),
                 "data" => [
                     "user_id" => $user['user_id'],
                     "country_id" => $country_id,
