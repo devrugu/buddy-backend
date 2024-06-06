@@ -16,7 +16,7 @@ include '../database/db_connection.php';
 $authHeader = getAuthorizationHeader();
 list($jwt) = sscanf($authHeader, 'Bearer %s');
 
-$key = $_ENV['JWT_SECRET_KEY'];
+$key = getenv('JWT_SECRET_KEY');
 $decoded = JWT::decode($jwt, new Key($key, 'HS256'));
 $country_id = $decoded->data->country_id;
 
