@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception('JWT token is missing');
         }
 
-        $decoded = JWT::decode($jwt, new Key($_ENV['JWT_SECRET_KEY'], 'HS256'));
+        $decoded = JWT::decode($jwt, new Key(getenv('JWT_SECRET_KEY'), 'HS256'));
         $user_id = $decoded->data->user_id;
 
         $query = "SELECT login_timestamp FROM UserLoginRecords WHERE user_id = ? AND login_status = 1 ORDER BY login_timestamp DESC LIMIT 1";
