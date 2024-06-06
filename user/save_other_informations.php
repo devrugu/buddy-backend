@@ -20,8 +20,8 @@ list($jwt) = sscanf($authHeader, 'Bearer %s');
 
 if ($jwt) {
     try {
-        $key = $_ENV['JWT_SECRET_KEY'];
-        $decoded = JWT::decode($jwt, new Key($key, $_ENV['JWT_ALGORITHM']));
+        $key = getenv('JWT_SECRET_KEY');
+        $decoded = JWT::decode($jwt, new Key($key, getenv('JWT_ALGORITHM')));
         $user_id = $decoded->data->user_id;
 
         $data = json_decode(file_get_contents('php://input'), true);
