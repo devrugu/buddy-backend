@@ -1,6 +1,7 @@
 <?php
 
-$servername = getenv('SERVER_NAME');
+/* $servername = getenv('SERVER_NAME'); */
+$servername = 'monorail.proxy.rlwy.net';
 $username = getenv('USER_NAME');
 $password = getenv('PASSWORD');
 $dbname = getenv('DATABASE_NAME');
