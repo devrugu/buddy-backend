@@ -114,7 +114,7 @@ function checkMissingProfileInfo($conn, $user_id) {
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
     if (is_null($row['hourly_wage'])) {
-        $missing_info[] = 'hourly_wage';
+        $missing_info[] = 'profiles';
     }
     $stmt->close();
 
@@ -125,7 +125,7 @@ function checkMissingProfileInfo($conn, $user_id) {
     $stmt->execute();
     $result = $stmt->get_result();
     if ($result->num_rows === 0) {
-        $missing_info[] = 'profile_picture';
+        $missing_info[] = 'pictures';
     }
     $stmt->close();
 
