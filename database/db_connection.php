@@ -4,15 +4,15 @@
 $dotenv = Dotenv\Dotenv::createImmutable("../");
 $dotenv->load(); */
 
-/* $servername = $_ENV['SERVER_N'];
-$username = $_ENV['USER_NAME'];
-$password = $_ENV['PASSWORD'];
-$dbname = $_ENV['DATABASE_NAME']; */
+$servername = getenv('SERVER_NAME');
+$username = getenv('USER_NAME');
+$password = getenv('PASSWORD');
+$dbname = getenv('DATABASE_NAME');
 
-$servername = 'localhost';
+/* $servername = 'localhost';
 $username = 'root';
 $password = '';
-$dbname = 'buddy_database';
+$dbname = 'buddy_database'; */
 
 // MySQL'e bağlan
 $conn = new mysqli($servername, $username, $password, $dbname);
