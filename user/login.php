@@ -103,6 +103,32 @@ function checkMissingProfileInfo($conn, $user_id) {
         if ($result->num_rows === 0) {
             $missing_info[] = strtolower(str_replace('user', '', $table));
         }
+        $stmt->close();
     }
+
+    // Check hourly wage
+    $query = "SELECT hourly_wage FROM userprofiles WHERE user_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    if (is_null($row['hourly_wage'])) {
+        $missing_info[] = 'hourly_wage';
+    }
+    $stmt->close();
+
+    // Check if the user has at least one profile picture
+    $query = "SELECT picture_path FROM userpictures WHERE user_id = ? AND is_profile_picture = 1";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows === 0) {
+        $missing_info[] = 'profile_picture';
+    }
+    $stmt->close();
+
     return $missing_info;
 }
+
