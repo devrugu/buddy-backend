@@ -4,6 +4,10 @@ header('Access-Control-Allow-Origin: *');
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
+// Increase file upload limits
+ini_set('upload_max_filesize', '10M');
+ini_set('post_max_size', '10M');
+
 require_once '../vendor/autoload.php';
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -20,10 +24,10 @@ if ($jwt) {
         $user_id = $decoded->data->user_id;
         $role_id = $decoded->data->role_id;
 
-        $profile_picture_index = $_POST['profile_picture_index'] ?? null;
+        $profile_picture_name = $_POST['profile_picture'] ?? null;
         $wage = ($role_id == 2) ? ($_POST['wage'] ?? null) : null;
 
-        if (($role_id == 2 && !$wage) || $profile_picture_index === null) {
+        if (($role_id == 2 && !$wage) || !$profile_picture_name) {
             echo json_encode(['error' => true, 'message' => 'Hourly wage and profile picture are required.']);
             exit;
         }
@@ -32,6 +36,12 @@ if ($jwt) {
         if (!$pictures) {
             echo json_encode(['error' => true, 'message' => 'At least one picture is required.']);
             exit;
+        }
+
+        // Convert images to base64
+        $encoded_images = [];
+        foreach ($pictures['tmp_name'] as $tmp_name) {
+            $encoded_images[] = base64_encode(file_get_contents($tmp_name));
         }
 
         // Begin transaction
@@ -48,13 +58,12 @@ if ($jwt) {
             }
         }
 
-        // Save pictures
-        for ($i = 0; $i < count($pictures['name']); $i++) {
-            $image_data = file_get_contents($pictures['tmp_name'][$i]);
+        // Save pictures to database
+        $profile_picture_index = $_POST['profile_picture_index'] ?? 0;
+        for ($i = 0; $i < count($encoded_images); $i++) {
             $is_profile_picture = ($i == $profile_picture_index) ? 1 : 0;
             $stmt = $conn->prepare("INSERT INTO userpictures (user_id, picture, is_profile_picture) VALUES (?, ?, ?)");
-            $stmt->bind_param("bsi", $user_id, $null, $is_profile_picture);
-            $stmt->send_long_data(1, $image_data);
+            $stmt->bind_param("isi", $user_id, $encoded_images[$i], $is_profile_picture);
             if (!$stmt->execute()) {
                 $conn->rollback();
                 echo json_encode(['error' => true, 'message' => 'Failed to save pictures.']);
