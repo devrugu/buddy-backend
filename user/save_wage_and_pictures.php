@@ -20,10 +20,10 @@ if ($jwt) {
         $user_id = $decoded->data->user_id;
         $role_id = $decoded->data->role_id;
 
-        $profile_picture_name = $_POST['profile_picture'] ?? null;
+        $profile_picture_index = $_POST['profile_picture_index'] ?? null;
         $wage = ($role_id == 2) ? ($_POST['wage'] ?? null) : null;
 
-        if (($role_id == 2 && !$wage) || !$profile_picture_name) {
+        if (($role_id == 2 && !$wage) || $profile_picture_index === null) {
             echo json_encode(['error' => true, 'message' => 'Hourly wage and profile picture are required.']);
             exit;
         }
@@ -33,18 +33,6 @@ if ($jwt) {
             echo json_encode(['error' => true, 'message' => 'At least one picture is required.']);
             exit;
         }
-
-        // Use the new directory under the volume
-        $upload_dir = __DIR__ . '/../updates/';
-        //$upload_dir = ($role_id == 1) ? $base_upload_dir . "tourist/" : $base_upload_dir . "guide/";
-        chmod($upload_dir, 0777);
-        // Ensure upload directory exists and set permissions
-/*         if (!is_dir($upload_dir)) {
-            if (!mkdir($upload_dir, 0777, true) && !is_dir($upload_dir)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $upload_dir));
-            }
-            chmod($upload_dir, 0777);
-        } */
 
         // Begin transaction
         $conn->begin_transaction();
@@ -61,26 +49,15 @@ if ($jwt) {
         }
 
         // Save pictures
-        $uploaded_files = [];
         for ($i = 0; $i < count($pictures['name']); $i++) {
-            $tmp_name = $pictures['tmp_name'][$i];
-            $original_name = basename($pictures['name'][$i]);
-            $unique_name = uniqid() . '_' . $original_name;
-            $upload_file = $upload_dir . $unique_name;
-
-            if (move_uploaded_file($tmp_name, $upload_file)) {
-                $is_profile_picture = ($unique_name === $profile_picture_name) ? 1 : 0;
-                $stmt = $conn->prepare("INSERT INTO userpictures (user_id, picture_path, is_profile_picture) VALUES (?, ?, ?)");
-                $stmt->bind_param("isi", $user_id, $upload_file, $is_profile_picture);
-                if (!$stmt->execute()) {
-                    $conn->rollback();
-                    echo json_encode(['error' => true, 'message' => 'Failed to save pictures.']);
-                    exit;
-                }
-                $uploaded_files[] = $upload_file;
-            } else {
+            $image_data = file_get_contents($pictures['tmp_name'][$i]);
+            $is_profile_picture = ($i == $profile_picture_index) ? 1 : 0;
+            $stmt = $conn->prepare("INSERT INTO userpictures (user_id, picture, is_profile_picture) VALUES (?, ?, ?)");
+            $stmt->bind_param("bsi", $user_id, $null, $is_profile_picture);
+            $stmt->send_long_data(1, $image_data);
+            if (!$stmt->execute()) {
                 $conn->rollback();
-                echo json_encode(['error' => true, 'message' => 'Failed to upload pictures.']);
+                echo json_encode(['error' => true, 'message' => 'Failed to save pictures.']);
                 exit;
             }
         }
