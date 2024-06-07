@@ -1,0 +1,16 @@
+[build]
+  # Specify your build commands here
+  # For example, if you need to install dependencies or compile assets
+  commands = [
+    "composer install",
+    "cp ./nginx.conf /etc/nginx/nginx.conf",  # Copy custom nginx.conf to the appropriate location
+    "cp ./mime.types /etc/nginx/mime.types",  # Copy mime.types to the appropriate location
+    "cp ./fastcgi_params /etc/nginx/fastcgi_params"  # Copy fastcgi_params to the appropriate location
+  ]
+
+[deploy]
+  # Specify your deployment commands here
+  commands = [
+    "service nginx restart",  # Restart Nginx to apply the new configuration
+    "php-fpm"  # Start PHP-FPM if needed
+  ]
