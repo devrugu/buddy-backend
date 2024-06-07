@@ -39,11 +39,12 @@ if ($jwt) {
         $upload_dir = ($role_id == 1) ? $base_upload_dir . "tourist/" : $base_upload_dir . "guide/";
 
         // Ensure upload directory exists and set permissions
-        /* if (!is_dir($upload_dir)) {
+        if (!is_dir($upload_dir)) {
             if (!mkdir($upload_dir, 0777, true) && !is_dir($upload_dir)) {
                 throw new \RuntimeException(sprintf('Directory "%s" was not created', $upload_dir));
             }
-        } */
+            chmod($upload_dir, 0777);
+        }
 
         // Begin transaction
         $conn->begin_transaction();
