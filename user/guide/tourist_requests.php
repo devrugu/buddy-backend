@@ -89,14 +89,15 @@ $conn->close();
 echo json_encode($response);
 
 function getTouristPictures($user_id, $conn) {
-    $query = "SELECT picture_path FROM userpictures WHERE user_id = ? AND is_profile_picture = 0";
+    $query = "SELECT picture FROM userpictures WHERE user_id = ? AND is_profile_picture = 0";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $pictures = [];
     while ($row = $result->fetch_assoc()) {
-        $pictures[] = $row['picture_path'];
+        $pictures[] = base64_encode($row['picture']);
     }
     return $pictures;
 }
+?>

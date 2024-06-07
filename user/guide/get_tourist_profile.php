@@ -93,13 +93,14 @@ function fetchTouristProfile($conn, $tourist_id) {
 }
 
 function getTouristImages($user_id, $conn) {
-    $stmt = $conn->prepare("SELECT picture_path FROM userpictures WHERE user_id = ? AND is_profile_picture = 0");
+    $stmt = $conn->prepare("SELECT picture FROM userpictures WHERE user_id = ? AND is_profile_picture = 0");
     $stmt->bind_param('i', $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $images = [];
     while ($row = $result->fetch_assoc()) {
-        $images[] = $row['picture_path'];
+        $images[] = base64_encode($row['picture']);
     }
     return $images;
 }
+?>

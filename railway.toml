@@ -1,0 +1,13 @@
+[build]
+  # Specify your build commands here
+  commands = [
+    "composer install"
+  ]
+
+[deploy]
+  # Specify your deployment commands here
+  commands = [
+    "echo 'client_max_body_size 20M;' > /etc/nginx/conf.d/client_max_body_size.conf",
+    "service nginx restart",  # Restart Nginx to apply the new configuration
+    "php-fpm"  # Start PHP-FPM if needed
+  ]

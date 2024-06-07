@@ -119,7 +119,7 @@ function checkMissingProfileInfo($conn, $user_id) {
     $stmt->close();
 
     // Check if the user has at least one profile picture
-    $query = "SELECT picture_path FROM userpictures WHERE user_id = ? AND is_profile_picture = 1";
+    $query = "SELECT picture FROM userpictures WHERE user_id = ? AND is_profile_picture = 1";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
@@ -131,4 +131,3 @@ function checkMissingProfileInfo($conn, $user_id) {
 
     return $missing_info;
 }
-

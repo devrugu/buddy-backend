@@ -94,13 +94,13 @@ function fetchGuideProfile($conn, $user_id) {
 }
 
 function getGuideImages($user_id, $conn) {
-    $stmt = $conn->prepare("SELECT picture_path FROM UserPictures WHERE user_id = ? AND is_profile_picture = 0");
+    $stmt = $conn->prepare("SELECT picture FROM UserPictures WHERE user_id = ? AND is_profile_picture = 0");
     $stmt->bind_param('i', $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $images = [];
     while ($row = $result->fetch_assoc()) {
-        $images[] = $row['picture_path'];
+        $images[] = base64_encode($row['picture']);
     }
     return $images;
 }

@@ -135,17 +135,18 @@ $response['error'] = false;
 echo json_encode($response);
 
 function getGuideImages($user_id, $conn) {
-    $query = "SELECT picture_path FROM userpictures WHERE user_id = ? AND is_profile_picture = 0";
+    $query = "SELECT picture FROM userpictures WHERE user_id = ? AND is_profile_picture = 0";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $images = [];
     while ($row = $result->fetch_assoc()) {
-        $images[] = $row['picture_path'];
+        $images[] = base64_encode($row['picture']);
     }
     return $images;
 }
 
 $stmt->close();
 $conn->close();
+?>
