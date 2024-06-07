@@ -35,7 +35,7 @@ if ($jwt) {
         }
 
         // Use the new directory under the volume
-        $base_upload_dir = '/updates/images/';
+        $base_upload_dir = '/app/updates/images/';
         $upload_dir = ($role_id == 1) ? $base_upload_dir . "tourist/" : $base_upload_dir . "guide/";
 
         // Ensure upload directory exists and set permissions
