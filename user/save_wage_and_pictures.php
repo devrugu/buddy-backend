@@ -34,17 +34,16 @@ if ($jwt) {
             exit;
         }
 
-        // Determine directory based on role
-        $upload_dir = ($role_id == 1) ? "../images/tourist/" : "../images/guide/";
+        // Use the new directory under the volume
+        $base_upload_dir = '/updates/images/';
+        $upload_dir = ($role_id == 1) ? $base_upload_dir . "tourist/" : $base_upload_dir . "guide/";
 
-        // Ensure upload directory exists and set permissions
-        if (!is_dir($upload_dir)) {
+        // Ensure upload directory exists
+        /* if (!is_dir($upload_dir)) {
             if (!mkdir($upload_dir, 0777, true) && !is_dir($upload_dir)) {
                 throw new \RuntimeException(sprintf('Directory "%s" was not created', $upload_dir));
             }
-        }
-        // Set directory permissions to 0777
-        chmod($upload_dir, 0777);
+        } */
 
         // Begin transaction
         $conn->begin_transaction();
