@@ -66,31 +66,37 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 }
 
 $tourist_id = $input['tourist_id'];
+$request_id = $input['request_id'];
 
-$stmt = $conn->prepare("SELECT location_id FROM UserLocations WHERE user_id = ?");
-$stmt->bind_param('i', $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$location = $result->fetch_assoc();
-$location_id = $location['location_id'];
+// Begin a transaction
+$conn->begin_transaction();
 
-$query = "
-    INSERT INTO TravelDiary (tourist_id, guide_id, visited_location_id, date_visited, request_id) 
-    VALUES (?, ?, ?, NOW(), ?)
-";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("iiii", $tourist_id, $user_id, $location_id, $input['request_id']);
-$stmt->execute();
+try {
+    // Insert into TravelDiary
+    $stmt = $conn->prepare("
+        INSERT INTO TravelDiary (tourist_id, guide_id, visited_location_id, date_visited, request_id) 
+        VALUES (?, ?, ?, NOW(), ?)
+    ");
+    $stmt->bind_param("iiii", $tourist_id, $user_id, $location_id, $request_id);
+    $stmt->execute();
 
-if ($stmt->affected_rows > 0) {
+    // Update the status in GuideRequests to 'finished'
+    $stmt = $conn->prepare("UPDATE GuideRequests SET status = 'finished' WHERE request_id = ?");
+    $stmt->bind_param("i", $request_id);
+    $stmt->execute();
+
+    // Commit the transaction
+    $conn->commit();
+
     $response['message'] = 'Service finished and saved to travel diary';
-} else {
+} catch (Exception $e) {
+    // Rollback the transaction on error
+    $conn->rollback();
     $response['error'] = true;
-    $response['message'] = 'Failed to save service information';
+    $response['message'] = 'Failed to save service information: ' . $e->getMessage();
 }
 
 $stmt->close();
 $conn->close();
 
 echo json_encode($response);
-?>

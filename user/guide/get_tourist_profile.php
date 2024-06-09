@@ -93,7 +93,7 @@ function fetchTouristProfile($conn, $tourist_id) {
 }
 
 function getTouristImages($user_id, $conn) {
-    $stmt = $conn->prepare("SELECT picture_path FROM UserPictures WHERE user_id = ? AND is_profile_picture = 0");
+    $stmt = $conn->prepare("SELECT picture_path FROM UserPictures WHERE user_id = ?");
     $stmt->bind_param('i', $user_id);
     $stmt->execute();
     $result = $stmt->get_result();

@@ -34,7 +34,7 @@ if ($jwt) {
         $stmtActivity = $conn->prepare("INSERT INTO UserActivities (user_id, activity_id) VALUES (?, ?)");
         foreach ($selectedActivities as $activityId) {
             $stmtActivity->bind_param("ii", $user_id, $activityId);
-            if(!$stmtActivity->execute()) {
+            if (!$stmtActivity->execute()) {
                 $conn->rollback(); // Rollback the transaction on error
                 error_log("Error saving selected activities: " . $stmtActivity->error);
                 echo json_encode(['status' => 'error', 'message' => 'Error saving selected activities.']);
@@ -48,7 +48,7 @@ if ($jwt) {
         foreach ($selectedInterests as $interestName) {
             // Look up the interest_id based on the interest name
             $interestId = getInterestId($conn, $interestName);
-            if($interestId === null) {
+            if ($interestId === null) {
                 $conn->rollback(); // Rollback the transaction if the interest name does not exist
                 error_log("Interest name '$interestName' does not exist in Interests table.");
                 echo json_encode(['status' => 'error', 'message' => "Interest name '$interestName' does not exist in Interests table."]);
@@ -57,7 +57,7 @@ if ($jwt) {
                 exit;
             } else {
                 $stmtInterest->bind_param("ii", $user_id, $interestId);
-                if(!$stmtInterest->execute()) {
+                if (!$stmtInterest->execute()) {
                     $conn->rollback(); // Rollback the transaction on error
                     error_log("Error saving selected interests: " . $stmtInterest->error);
                     echo json_encode(['status' => 'error', 'message' => 'Error saving selected interests.']);
@@ -70,7 +70,26 @@ if ($jwt) {
 
         // If all operations were successful, commit the transaction
         $conn->commit();
-        echo json_encode(['status' => 'success', 'message' => 'Activities and interests saved successfully.']);
+
+        // Update the missing info array
+        $missing_info = checkMissingProfileInfo($conn, $user_id);
+
+        // Create new JWT with updated missing_info
+        $payload = [
+            "iss" => "your_issuer",
+            "aud" => "your_audience",
+            "iat" => time(),
+            "exp" => time() + (int)$_ENV['JWT_EXPIRATION'],
+            "data" => [
+                "user_id" => $user_id,
+                "country_id" => $decoded->data->country_id,
+                "role_id" => $decoded->data->role_id,
+                "missing_info" => $missing_info
+            ]
+        ];
+        $new_jwt = JWT::encode($payload, $key, 'HS256');
+
+        echo json_encode(['status' => 'success', 'message' => 'Activities and interests saved successfully.', 'token' => $new_jwt]);
 
     } catch (Exception $e) {
         $conn->rollback(); // Rollback the transaction in case of an error
@@ -95,6 +114,54 @@ function getInterestId($conn, $interestName) {
     return null;
 }
 
+function checkMissingProfileInfo($conn, $user_id) {
+    $missing_info = [];
+    $tables = [
+        'UserActivities' => 'activity_id',
+        'UserEducationLevels' => 'education_level_id',
+        'UserInterests' => 'interest_id',
+        'UserLanguages' => 'language_id',
+        'UserLocations' => 'location_id',
+        'UserProfessions' => 'profession_id',
+    ];
+
+    foreach ($tables as $table => $column) {
+        $query = "SELECT $column FROM $table WHERE user_id = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows === 0) {
+            $missing_info[] = strtolower(str_replace('User', '', $table));
+        }
+    }
+
+    // Check hourly wage
+    $query = "SELECT hourly_wage FROM userprofiles WHERE user_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    if (is_null($row['hourly_wage'])) {
+        $missing_info[] = 'profiles';
+    }
+    $stmt->close();
+
+    // Check if the user has at least one profile picture
+    $query = "SELECT picture_path FROM userpictures WHERE user_id = ? AND is_profile_picture = 1";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows === 0) {
+        $missing_info[] = 'pictures';
+    }
+    $stmt->close();
+
+    return $missing_info;
+}
+
 function getAuthorizationHeader() {
     $headers = null;
     if (isset($_SERVER['Authorization'])) {
@@ -112,3 +179,4 @@ function getAuthorizationHeader() {
 }
 
 $conn->close();
+?>

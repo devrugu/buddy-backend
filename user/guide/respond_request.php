@@ -79,9 +79,12 @@ $query = "
     UPDATE GuideRequests 
     SET status = ?, response_timestamp = NOW(), location_id = ?
     WHERE sender_id = ? AND receiver_id = ?
+    AND request_id NOT IN (
+        SELECT request_id FROM TravelDiary WHERE tourist_id = ? AND guide_id = ?
+    )
 ";
 $stmt = $conn->prepare($query);
-$stmt->bind_param("siii", $status, $location_id, $tourist_id, $user_id);
+$stmt->bind_param("siiiii", $status, $location_id, $tourist_id, $user_id, $tourist_id, $user_id);
 $stmt->execute();
 
 if ($stmt->affected_rows > 0) {
@@ -95,3 +98,4 @@ $stmt->close();
 $conn->close();
 
 echo json_encode($response);
+?>

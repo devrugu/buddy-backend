@@ -89,7 +89,7 @@ $conn->close();
 echo json_encode($response);
 
 function getTouristPictures($user_id, $conn) {
-    $query = "SELECT picture_path FROM UserPictures WHERE user_id = ? AND is_profile_picture = 0";
+    $query = "SELECT picture_path FROM UserPictures WHERE user_id = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $user_id);
     $stmt->execute();

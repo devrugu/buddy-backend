@@ -40,6 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $stmt->get_result();
             $country_id = $result->fetch_assoc()['country_id'];
 
+            $missing_info = checkMissingProfileInfo($conn, $user['user_id'], $user['role_id']);
+
             $key = $_ENV['JWT_SECRET_KEY'];
             $payload = [
                 "iss" => "your_issuer",
@@ -49,7 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 "data" => [
                     "user_id" => $user['user_id'],
                     "country_id" => $country_id,
-                    "role_id" => $user['role_id']
+                    "role_id" => $user['role_id'],
+                    "missing_info" => $missing_info
                 ]
             ];
             $jwt = JWT::encode($payload, $key, 'HS256');
@@ -61,8 +64,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $conn->prepare($query);
             $stmt->bind_param('isi', $user_id, $login_timestamp, $login_status);
             $stmt->execute();
-
-            $missing_info = checkMissingProfileInfo($conn, $user_id);
 
             echo json_encode([
                 'error' => false,
@@ -83,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo json_encode(['error' => true, 'message' => 'Invalid request method.']);
 }
 
-function checkMissingProfileInfo($conn, $user_id) {
+function checkMissingProfileInfo($conn, $user_id, $role_id) {
     $missing_info = [];
     $tables = [
         'UserActivities' => 'activity_id',
@@ -104,5 +105,32 @@ function checkMissingProfileInfo($conn, $user_id) {
             $missing_info[] = strtolower(str_replace('User', '', $table));
         }
     }
+
+    if ($role_id === 2) {
+        // Check hourly wage
+        $query = "SELECT hourly_wage FROM userprofiles WHERE user_id = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        if (is_null($row['hourly_wage'])) {
+            $missing_info[] = 'profiles';
+        }
+        $stmt->close();
+    }
+    
+
+    // Check if the user has at least one profile picture
+    $query = "SELECT picture_path FROM userpictures WHERE user_id = ? AND is_profile_picture = 1";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows === 0) {
+        $missing_info[] = 'pictures';
+    }
+    $stmt->close();
+
     return $missing_info;
 }

@@ -13,6 +13,11 @@ use Firebase\JWT\Key;
 
 include '../database/db_connection.php';
 
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $authHeader = getAuthorizationHeader();
@@ -39,10 +44,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $user = $result->fetch_assoc();
+
+        // Check if missing_info exists in the JWT payload
+        $missing_info = isset($decoded->data->missing_info) ? $decoded->data->missing_info : [];
+
+        // Debugging output
+        error_log('User ID: ' . $user['user_id']);
+        error_log('Role ID: ' . $user['role_id']);
+        error_log('Missing Info: ' . json_encode($missing_info));
+
         echo json_encode([
             'error' => false,
             'user_id' => $user['user_id'],
-            'role_id' => $user['role_id']
+            'role_id' => $user['role_id'],
+            'profile_status' => empty($missing_info),
+            'missing_info' => $missing_info
         ]);
     } catch (Exception $e) {
         echo json_encode(['error' => true, 'message' => $e->getMessage()]);
@@ -62,3 +78,4 @@ function getAuthorizationHeader() {
     }
     return null;
 }
+?>

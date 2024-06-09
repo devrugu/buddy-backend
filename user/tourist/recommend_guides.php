@@ -91,17 +91,12 @@ $query = "
     LEFT JOIN (SELECT receiver_id, COUNT(*) as reviews FROM RatingsAndReviews GROUP BY receiver_id) rr ON u.user_id = rr.receiver_id
     WHERE u.user_id != ? 
     AND u.role_id = 2 
-    AND u.user_id NOT IN (
-        SELECT receiver_id 
+    AND NOT EXISTS (
+        SELECT 1 
         FROM GuideRequests 
         WHERE sender_id = ? 
+        AND receiver_id = u.user_id
         AND status IN ('pending', 'accepted')
-        AND NOT EXISTS (
-            SELECT 1 
-            FROM TravelDiary 
-            WHERE tourist_id = ? 
-            AND guide_id = receiver_id
-        )
     )
     AND (
         6371 * acos (
@@ -114,7 +109,7 @@ $query = "
     ) < ?
 ";
 $stmt = $conn->prepare($query);
-$stmt->bind_param("iiidddi", $user_id, $user_id, $user_id, $user_lat, $user_lng, $user_lat, $radius);
+$stmt->bind_param("iidddi", $user_id, $user_id, $user_lat, $user_lng, $user_lat, $radius);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -135,7 +130,7 @@ $response['error'] = false;
 echo json_encode($response);
 
 function getGuideImages($user_id, $conn) {
-    $query = "SELECT picture_path FROM UserPictures WHERE user_id = ? AND is_profile_picture = 0";
+    $query = "SELECT picture_path FROM UserPictures WHERE user_id = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
@@ -149,3 +144,4 @@ function getGuideImages($user_id, $conn) {
 
 $stmt->close();
 $conn->close();
+?>
