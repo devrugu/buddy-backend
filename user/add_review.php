@@ -43,6 +43,7 @@ try {
 }
 
 $user_id = $decoded->data->user_id;
+$role_id = $decoded->data->role_id;
 
 $input = json_decode(file_get_contents('php://input'), true);
 if (json_last_error() !== JSON_ERROR_NONE) {
@@ -56,9 +57,28 @@ $diary_id = $input['diary_id'];
 $rating = $input['rating'];
 $review = $input['review'];
 
-$query = "INSERT INTO ratingsandreviews (diary_id, sender_id, rating, review_text) VALUES (?, ?, ?, ?)";
+if ($role_id == 1) {
+    $query = "SELECT guide_id FROM traveldiaries WHERE diary_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param('i', $diary_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $query_array = $result->fetch_assoc();
+    $receiver_id = $query_array['guide_id'];
+} else if ($role_id == 2) {
+    $query = "SELECT tourist_id FROM traveldiaries WHERE diary_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param('i', $diary_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $query_array = $result->fetch_assoc();
+    $receiver_id = $query_array['tourist_id'];
+}
+
+
+$query = "INSERT INTO ratingsandreviews (diary_id, sender_id, receiver_id, rating, review_text) VALUES (?, ?, ?, ?)";
 $stmt = $conn->prepare($query);
-$stmt->bind_param('iiis', $diary_id, $user_id, $rating, $review);
+$stmt->bind_param('iiiis', $diary_id, $user_id, $receiver_id, $rating, $review);
 $stmt->execute();
 
 if ($stmt->affected_rows > 0) {
