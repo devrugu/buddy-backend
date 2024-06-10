@@ -57,6 +57,14 @@ try {
 
 $user_id = $decoded->data->user_id;
 
+$query = "SELECT location_id FROM UserLocations WHERE user_id = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+$location_id = $row['location_id'];
+
 $input = json_decode(file_get_contents('php://input'), true);
 if (json_last_error() !== JSON_ERROR_NONE) {
     $response['error'] = true;

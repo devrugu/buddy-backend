@@ -31,8 +31,6 @@ if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
     }
 }
 
-error_log('Authorization Header in recommend_guides.php: ' . $authHeader); // Debugging
-
 if (!$authHeader) {
     $response['error'] = true;
     $response['message'] = 'Authorization header is missing';
@@ -60,6 +58,7 @@ try {
 
 $user_id = $decoded->data->user_id;
 
+// Get user current location
 $query = "SELECT latitude, longitude FROM UserCurrentLocation WHERE user_id = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $user_id);
@@ -81,6 +80,27 @@ $response['message'] = "User Location: Latitude - $user_lat, Longitude - $user_l
 
 $radius = 50; // Radius in kilometers
 
+// Get user interests, activities, and activity categories
+$query = "
+    SELECT interest_id FROM UserInterests WHERE user_id = ? 
+    UNION 
+    SELECT activity_id FROM UserActivities WHERE user_id = ? 
+    UNION
+    SELECT category_id FROM Activities WHERE activity_id IN (SELECT activity_id FROM UserActivities WHERE user_id = ?)
+";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("iii", $user_id, $user_id, $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$user_preferences = [];
+while ($row = $result->fetch_assoc()) {
+    $user_preferences[] = $row['interest_id'];
+}
+
+$placeholders = implode(',', array_fill(0, count($user_preferences), '?'));
+$params = array_merge([$user_id, $user_id, $user_lat, $user_lng, $user_lat, $radius], $user_preferences);
+
+// Fetch guides based on location
 $query = "
     SELECT u.user_id, up.name, up.surname, ul.latitude, ul.longitude, uc.country_id, r.rating, rr.reviews, up.hourly_wage
     FROM Users u
@@ -119,11 +139,66 @@ while ($guide = $result->fetch_assoc()) {
     $guides[] = $guide;
 }
 
-if (empty($guides)) {
+// Separate guides into two groups
+$group1 = [];
+$group2 = [];
+foreach ($guides as $guide) {
+    // Check if the guide has similar interests or activities
+    $query = "
+    SELECT 1 FROM UserInterests WHERE user_id = ? AND interest_id IN ($placeholders)
+    UNION
+    SELECT 1 FROM UserActivities WHERE user_id = ? AND activity_id IN ($placeholders)
+    UNION
+    SELECT 1 FROM Activities WHERE activity_id IN (SELECT activity_id FROM UserActivities WHERE user_id = ?) AND category_id IN ($placeholders)
+    ";
+
+    $merged_params = array_merge(
+        [$guide['user_id']], 
+        $user_preferences, 
+        [$guide['user_id']], 
+        $user_preferences, 
+        [$guide['user_id']], 
+        $user_preferences
+    );
+
+    $stmt = $conn->prepare($query);
+    $types = str_repeat('i', count($merged_params));
+    $stmt->bind_param($types, ...$merged_params);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    
+    if ($result->num_rows > 0) {
+        $group1[] = $guide;
+    } else {
+        $group2[] = $guide;
+    }
+}
+
+// Calculate weighted rating
+function calculate_weighted_rating($guide) {
+    $reviews = $guide['reviews'] ?? 0;
+    $rating = $guide['rating'] ?? 0;
+    return ($reviews * $rating + 5 * 10) / ($reviews + 10); // Example: using 10 as a smoothing factor
+}
+
+// Sort guides by weighted rating
+usort($group1, function ($a, $b) {
+    return calculate_weighted_rating($b) <=> calculate_weighted_rating($a);
+});
+
+usort($group2, function ($a, $b) {
+    return calculate_weighted_rating($b) <=> calculate_weighted_rating($a);
+});
+
+// Combine groups
+$combined_guides = array_merge($group1, $group2);
+
+if (empty($combined_guides)) {
     $response['message'] .= " | No guides found within the radius.";
 } else {
-    $response['guides'] = $guides;
-    $response['message'] .= " | Guides found: " . json_encode($guides);
+    $response['guides'] = $combined_guides;
+    $response['message'] .= " | Guides found: " . json_encode($combined_guides);
 }
 
 $response['error'] = false;
