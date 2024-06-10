@@ -15,7 +15,7 @@ guiderequests
 request_id (int(11)) (PK) (AI)
 sender_id (int(11)) (NULL) (FK=>sender_id-->users::user_id)
 receiver_id (int(11)) (NULL) (FK=>receiver_id-->users::user_id)
-status (enum('pending','accepted','denied'))
+status (enum('pending','accepted','denied','finished')) (NULL)
 request_timestamp (timestamp) (NULL)
 response_timestamp (timestamp) (NULL)
 location_id (int(11)) (NULL) (FK=>location_id-->locations::location_id)
