@@ -80,6 +80,8 @@ $response['message'] = "User Location: Latitude - $user_lat, Longitude - $user_l
 
 $radius = 50; // Radius in kilometers
 
+$filters = json_decode(file_get_contents('php://input'), true);
+
 // Get user interests, activities, and activity categories
 $query = "
     SELECT interest_id FROM UserInterests WHERE user_id = ? 
@@ -139,10 +141,88 @@ while ($guide = $result->fetch_assoc()) {
     $guides[] = $guide;
 }
 
+// Filter guides based on the selected filters
+if (!empty($filters)) {
+    $filtered_guides = [];
+    foreach ($guides as $guide) {
+        $add_guide = true;
+
+        if (isset($filters['ageRange'])) {
+            $age_query = "SELECT TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) AS age FROM UserProfiles WHERE user_id = ?";
+            $age_stmt = $conn->prepare($age_query);
+            $age_stmt->bind_param('i', $guide['user_id']);
+            $age_stmt->execute();
+            $age_result = $age_stmt->get_result();
+            $age_row = $age_result->fetch_assoc();
+            $age = $age_row['age'];
+
+            if ($age < $filters['ageRange'][0] || $age > $filters['ageRange'][1]) {
+                $add_guide = false;
+            }
+        }
+
+        if (isset($filters['profession']) && $filters['profession'] != '') {
+            $profession_query = "SELECT profession_name FROM UserProfessions up JOIN Professions p ON up.profession_id = p.profession_id WHERE user_id = ?";
+            $profession_stmt = $conn->prepare($profession_query);
+            $profession_stmt->bind_param('i', $guide['user_id']);
+            $profession_stmt->execute();
+            $profession_result = $profession_stmt->get_result();
+            $profession_row = $profession_result->fetch_assoc();
+            $profession = $profession_row['profession_name'];
+
+            if ($profession != $filters['profession']) {
+                $add_guide = false;
+            }
+        }
+
+        if (isset($filters['interest']) && $filters['interest'] != '') {
+            $interest_query = "SELECT 1 FROM UserInterests ui JOIN Interests i ON ui.interest_id = i.interest_id WHERE user_id = ? AND interest_name = ?";
+            $interest_stmt = $conn->prepare($interest_query);
+            $interest_stmt->bind_param('is', $guide['user_id'], $filters['interest']);
+            $interest_stmt->execute();
+            $interest_result = $interest_stmt->get_result();
+
+            if ($interest_result->num_rows == 0) {
+                $add_guide = false;
+            }
+        }
+
+        if (isset($filters['activity']) && $filters['activity'] != '') {
+            $activity_query = "SELECT 1 FROM UserActivities ua JOIN Activities a ON ua.activity_id = a.activity_id WHERE user_id = ? AND activity_name = ?";
+            $activity_stmt = $conn->prepare($activity_query);
+            $activity_stmt->bind_param('is', $guide['user_id'], $filters['activity']);
+            $activity_stmt->execute();
+            $activity_result = $activity_stmt->get_result();
+
+            if ($activity_result->num_rows == 0) {
+                $add_guide = false;
+            }
+        }
+
+        if (isset($filters['language']) && $filters['language'] != '') {
+            $language_query = "SELECT 1 FROM UserLanguages ul JOIN Languages l ON ul.language_id = l.language_id WHERE user_id = ? AND language_name = ?";
+            $language_stmt = $conn->prepare($language_query);
+            $language_stmt->bind_param('is', $guide['user_id'], $filters['language']);
+            $language_stmt->execute();
+            $language_result = $language_stmt->get_result();
+
+            if ($language_result->num_rows == 0) {
+                $add_guide = false;
+            }
+        }
+
+        if ($add_guide) {
+            $filtered_guides[] = $guide;
+        }
+    }
+} else {
+    $filtered_guides = $guides;
+}
+
 // Separate guides into two groups
 $group1 = [];
 $group2 = [];
-foreach ($guides as $guide) {
+foreach ($filtered_guides as $guide) {
     // Check if the guide has similar interests or activities
     $query = "
     SELECT 1 FROM UserInterests WHERE user_id = ? AND interest_id IN ($placeholders)
