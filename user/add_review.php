@@ -58,7 +58,7 @@ $rating = $input['rating'];
 $review = $input['review'];
 
 if ($role_id == 1) {
-    $query = "SELECT guide_id FROM traveldiaries WHERE diary_id = ?";
+    $query = "SELECT guide_id FROM traveldiary WHERE diary_id = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param('i', $diary_id);
     $stmt->execute();
@@ -66,7 +66,7 @@ if ($role_id == 1) {
     $query_array = $result->fetch_assoc();
     $receiver_id = $query_array['guide_id'];
 } else if ($role_id == 2) {
-    $query = "SELECT tourist_id FROM traveldiaries WHERE diary_id = ?";
+    $query = "SELECT tourist_id FROM traveldiary WHERE diary_id = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param('i', $diary_id);
     $stmt->execute();
@@ -76,7 +76,7 @@ if ($role_id == 1) {
 }
 
 
-$query = "INSERT INTO ratingsandreviews (diary_id, sender_id, receiver_id, rating, review_text) VALUES (?, ?, ?, ?)";
+$query = "INSERT INTO ratingsandreviews (diary_id, sender_id, receiver_id, rating, review_text) VALUES (?, ?, ?, ?, ?)";
 $stmt = $conn->prepare($query);
 $stmt->bind_param('iiiis', $diary_id, $user_id, $receiver_id, $rating, $review);
 $stmt->execute();

@@ -8,7 +8,7 @@ $tablesResult = $conn->query("SHOW TABLES");
 if ($tablesResult->num_rows > 0) {
     while ($table = $tablesResult->fetch_row()) {
         $tableName = $table[0];
-        echo "<h3>$tableName</h3>";
+        echo "<h3>$tableName:</h3>";
 
         // Sütun bilgilerini al
         $columnsSql = "SHOW FULL COLUMNS FROM $tableName";
